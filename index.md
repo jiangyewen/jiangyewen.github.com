@@ -1,13 +1,18 @@
 ---
 layout: page
-title: Pages 
-header: Pages
-group: navigation
+title: List
+tagline: Every dog has its day
 ---
-{% include JB/setup %}
 
-<h2>All Pages</h2>
-<ul>
-{% assign pages_list = site.pages %}
-{% include JB/pages_list %}
+
+<ul class="posts">
+  {% for post in site.posts %}
+    
+        <h2><a href="{{ BASE_PATH }}{{ post.url }}">{{ post.title }}</a></h2>
+        <div class="title-desc">{{ post.description }}</div>
+    
+  {% endfor %}
 </ul>
+
+
+
