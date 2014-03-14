@@ -14,10 +14,18 @@
     <link rel="stylesheet" href="/media/css/github.css">
     <link rel="stylesheet" href="/media/css/fontawesome.css">
     <script src="/media/js/jquery-1.7.1.min.js" type="text/javascript" charset="utf-8"></script> 
-    <script type="text/javascript" src="/media/js/highlight.pack.js"></script>
+   
+   <!--highlight the code with <pre>code</code> -->
+    <link href="/media/css/prettify.css" type="text/css" rel="stylesheet" />
+    <script type="text/javascript" src="/media/js/prettify.js"></script>
     <script type="text/javascript">
-      hljs.initHighlightingOnLoad();
+        $(window).load(function(){
+        $("pre").addClass("prettyprint");
+         prettyPrint();
+        })
     </script>
+    <!-- highlight end -->
+
   </head>
   <body>
       <div id="main" role="main">
