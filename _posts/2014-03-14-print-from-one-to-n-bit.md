@@ -4,6 +4,7 @@ layout: post
 tags:
   - C 
   - 算法
+  - tech
 ---
 
 

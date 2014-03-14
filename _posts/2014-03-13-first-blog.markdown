@@ -4,6 +4,7 @@ layout: post
 tags:
   - github 
   - pages
+  - life
 ---
 
 都说博客有三境界：一是使用新浪网易等免费的博客，二是自己买空间和域名搭建Wordpress，最后是来到Github Pages了。
