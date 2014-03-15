@@ -25,7 +25,7 @@ tags:
 
 ##安装好后，在vmware左边面板选择 My Computer->ubuntu->Settings->options->shared folders->enable->add。
 
-##点击browser,选择windows下的文件夹，设置如下图所示：
+##点击browser,选择windows下的文件夹，设置如下图所示
 	
 	![setting](media/file/20140315/1.jpg)
 
