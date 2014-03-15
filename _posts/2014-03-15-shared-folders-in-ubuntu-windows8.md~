@@ -13,11 +13,9 @@ tags:
 
 环境：
 
-<pre>
 * host:  windows 8.1 64bit
 * guest: Ubuntu 13.10 32bit
 * tools: vmware 10 Download [here](http://pan.baidu.com/s/1eQGanOA)
-</pre>
 
 安装好vmware
 
