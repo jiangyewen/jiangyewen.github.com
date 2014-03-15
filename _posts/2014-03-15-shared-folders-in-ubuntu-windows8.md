@@ -37,6 +37,7 @@ tags:
 
 <pre>
 ln -s /home/frank/Desktop/winDesktop /mnt/hgfs/Desktop
+
 ln -s /home/frank/Desktop/winDownloads /mnt/hgfs/Downloads
 </pre>
 
