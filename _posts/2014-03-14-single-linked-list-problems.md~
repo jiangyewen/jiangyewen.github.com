@@ -1,6 +1,7 @@
 ---
 title: 单链表相关问题
 layout: post
+description: 单链表的常用操作实现
 tags:
   - 数据结构
   - tech
@@ -10,7 +11,7 @@ tags:
 
 定义情况如下：
 
-<pre>
+```c
 #define TRUE 1
 #define FALSE 0
 typedef int bool;
@@ -18,7 +19,7 @@ typedef struct node {
         struct node * next;
         int value;
 } Node;
-</pre>
+```
 
 # 1. 针对一个单链表的常用操作
 
@@ -31,7 +32,8 @@ typedef struct node {
         将此节点指向下下个节点，最后删除中间的节点。
         程序如下：
 
-<pre>   
+
+```c  
 void removeNode ( Node ** head, int value){
     if ( head == NULL || *head == NULL )
         return;
@@ -55,8 +57,7 @@ void removeNode ( Node ** head, int value){
     }
  
 }
-
-</pre>
+```
 
  
 ##（2）在链表尾部新增一个节点，其值为value：
@@ -66,7 +67,7 @@ void removeNode ( Node ** head, int value){
     否则，在尾部直接添加新节点即可；
     程序如下：
 
-<pre>    
+```c   
 void addNodeToTail ( Node ** head, int value){
     Node * newNode = (Node *) malloc(sizeof(Node));
     newNode->next = NULL;
@@ -80,7 +81,7 @@ void addNodeToTail ( Node ** head, int value){
         (*head)->next = newNode;
     }
 }
-</pre>
+```
 
 ##（3）打印一个单链表，但是输出的顺序反向：
 
@@ -89,7 +90,7 @@ void addNodeToTail ( Node ** head, int value){
     然后从栈中返回前面调用的函数，实现了反向打印。
     程序如下：
 
-<pre>  
+```c 
 void printListReversely ( Node * head ){
     if ( head == NULL )
         return;
@@ -97,7 +98,7 @@ void printListReversely ( Node * head ){
         printListReversely (head->next);
     printf("%d\t",head->next);
 }
-</pre> 
+```
 
 ##（4）翻转一个单链表，即把原来的链表反向：
 
@@ -106,7 +107,7 @@ void printListReversely ( Node * head ){
    需要3个变量，一个保存现在的节点，一个保存前一个节点，一个保存下一个节点。
    程序如下：
 
-<pre>
+```c
 Node *  reverseLinkList ( Node * pHead ){
     if (pHead==NULL)
         return NULL;
@@ -121,7 +122,7 @@ Node *  reverseLinkList ( Node * pHead ){
     }
     return pCur; /* pCur is the last node b4; and it's the head of the new node now */
 }
-</pre> 
+```
 
 ##(5) 判断一个链表是否有环
 
@@ -133,7 +134,7 @@ Node *  reverseLinkList ( Node * pHead ){
 
    程序如下：
 
-<pre>
+```c
 bool isLoopInList (Node * head){
     Node * slow = head;
     Node * fast = head;
@@ -148,7 +149,7 @@ bool isLoopInList (Node * head){
  
  
 }
-</pre> 
+```
 
 ##（6）如果一个链表有环，请找出进入环的第一个节点
 
@@ -159,7 +160,7 @@ bool isLoopInList (Node * head){
  （可以按照圆环的路径证明）
   程序如下：
  
-<pre>
+```c
 Node * fistNodeOfLoop(Node * head){
     Node * slow = head;
     Node * fast = head;
@@ -177,7 +178,7 @@ Node * fistNodeOfLoop(Node * head){
     return slow;
  
 }
-</pre> 
+```
 
 ##（7） 打印链表的倒数第K个节点
 
@@ -186,7 +187,7 @@ Node * fistNodeOfLoop(Node * head){
 当前面的指针走到尾时，后的指针刚好走到倒数第K个节点。
 程序如下：
 
-<pre>
+```c
 Node * FindLastKNode ( Node * head, unsigned int k ){
     if ( head == NULL || k ==0 )
         return NULL;
@@ -208,7 +209,7 @@ Node * FindLastKNode ( Node * head, unsigned int k ){
     }
     return slow;
 }
-</pre>
+```
  
 #2. 以上都是针对一个单链表的操作，下面讨论两个单链表，
 现在讨论两个单链表的相交情况
@@ -222,7 +223,7 @@ Node * FindLastKNode ( Node * head, unsigned int k ){
 时间复杂度为 O(m+n)
 
 
-<pre>
+```c
 bool HasCommonNodeOf2Lists ( Node * p1,Node * p2 ){
         while ( p1->next != NULL )
             p1 = p1->next;
@@ -232,7 +233,7 @@ bool HasCommonNodeOf2Lists ( Node * p1,Node * p2 ){
         return (p1==p2)? TRUE : FALSE;
  
 }
-</pre>
+```
 
 ##(2) 如果两个链表相交，找出第一个相交的节点
 
@@ -243,7 +244,7 @@ bool HasCommonNodeOf2Lists ( Node * p1,Node * p2 ){
 程序如下：
 
 
-<pre>
+```c
 Node *  firstCommonNodeOf2Lists ( Node * head1,Node * head2 ){
         if (head1==NULL || head2==NULL)
             return NULL;
@@ -278,4 +279,4 @@ Node *  firstCommonNodeOf2Lists ( Node * head1,Node * head2 ){
         }
         return slow;
 }
-</pre>
+```

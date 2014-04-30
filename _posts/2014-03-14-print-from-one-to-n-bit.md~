@@ -24,7 +24,6 @@ int main(){
     system("pause");
     return 0;
 }
-```
  
 void Print1ToMaxOfNDigits ( int n){
     if (n<0)

@@ -1,6 +1,7 @@
 ---
 title: ubuntu在vmware下共享windows 8文件夹
 layout: post
+description: 如何将Windows下文件夹共享到Ubuntu，使其在Ubuntu虚拟机内也可以直接使用文件
 tags:
   - ubuntu
   - vmware
@@ -31,10 +32,10 @@ tags:
 
 为了方便，创建Symbolic link（软链接）到Ubuntu桌面
 
-<pre>
+```bash
 ln -s /home/frank/Desktop/winDesktop /mnt/hgfs/Desktop
 ln -s /home/frank/Desktop/winDownloads /mnt/hgfs/Downloads
-</pre>
+```
 
 最后效果图：
 ![result](/media/file/20140315/3.jpg)
