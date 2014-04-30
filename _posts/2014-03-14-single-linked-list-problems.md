@@ -1,7 +1,7 @@
 ---
 title: 单链表相关问题
 layout: post
-description: 单链表的常用操作实现
+description: 单链表的常用操作实现:删除、增加、反转、环形...
 tags:
   - 数据结构
   - tech

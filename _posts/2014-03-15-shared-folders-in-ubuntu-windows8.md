@@ -1,7 +1,8 @@
 ---
 title: ubuntu在vmware下共享windows 8文件夹
 layout: post
-description: 在vmware下，如何将Windows下文件夹共享到Ubuntu，使其在Ubuntu虚拟机内也可以直接使用文件
+description: "在vmware下，如何将Windows下文件夹共享到Ubuntu，使其在Ubuntu虚拟机内也可以直接使用文件 
+	     "
 tags:
   - ubuntu
   - vmware

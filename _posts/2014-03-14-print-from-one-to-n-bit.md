@@ -1,7 +1,7 @@
 ---
 title: 从1打印到最大的N位数
 layout: post
-description: 从1打印到最大的N位数, 当N=3时，即打印1,2,3,4...999
+description: 从1打印到最大的N位数, 当N=3时，即打印1,2,3,4...999。...
 tags: [C,算法,tech]
 date: 2014-03-14 23:10
 ---
