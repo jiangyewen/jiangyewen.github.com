@@ -2,8 +2,8 @@ title:            潇湘雨
 description:      '开始的路就不叫远方'
 #disqus_shortname: seoaqua
 #Your site's domain goes here. Leave localhost server or blank when working locally.
-url:              http://localhost:4000
-#url:              http://seoaqua.com
+#url:              http://localhost:4000
+url:              http://jiangyewen.github.com
 
 # Owner/author information
 owner:
