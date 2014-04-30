@@ -31,10 +31,10 @@ tags:
 
 为了方便，创建Symbolic link（软链接）到Ubuntu桌面
 
-<pre>
+```bash
 ln -s /home/frank/Desktop/winDesktop /mnt/hgfs/Desktop
 ln -s /home/frank/Desktop/winDownloads /mnt/hgfs/Downloads
-</pre>
+```
 
 最后效果图：
 ![result](/media/file/20140315/3.jpg)
