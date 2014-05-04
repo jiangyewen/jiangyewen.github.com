@@ -109,7 +109,7 @@ sub decode {
 	return wantarray? @arr : $arr[0]; #根据调用的环境，决定返回数组还是标量
 }
 ```
-##压缩的效果图
+###压缩的效果图
 
 ![setting](/media/file/20140504/process.jpg)
 
