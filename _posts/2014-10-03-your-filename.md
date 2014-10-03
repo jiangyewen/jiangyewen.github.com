@@ -1,5 +1,5 @@
 ---
-published: false
+published: true
 ---
 
 通过PHP读写MongoDB需要做以下两方面的事情：
