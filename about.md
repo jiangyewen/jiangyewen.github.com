@@ -9,3 +9,4 @@ share: false
 ---
 
 This is my blog for capturing every impressive moment happening in my daily routine and every technical problem I have encountered in the expoloration of computer science. Some of them might be simply stupid yet indeed annoying for an outman. That’s the reason I am here: keeping track of my life and study and enlightening my future.
+.
