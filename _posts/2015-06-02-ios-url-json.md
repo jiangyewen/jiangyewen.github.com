@@ -4,9 +4,9 @@ layout: post
 description: "本文主要记录如何在iOS中使用webView来查看网页的内容"
 tags: [iOS入门,webView,Object C]
 ---
-##如何请求一个给定的url并处理返回的数据
+##如何请求一个给定的url并处理返回的[数据](id:top)
 
-*  将给定的url字符串转化为 NSURL [对象](#finalCode)
+*  将给定的url字符串转化为 NSURL 对象
 
 ```c
   NSString * requestString = @"http://bookapi.bignerdranch.com/courses.json";
@@ -44,7 +44,7 @@ NSURLRequest 包含了请求的各种参数,如http头部,超时时间,缓存策
 
 * 对JSON格式数据的解析
 
-iOS提供了NSJSONSerialization类,对JSON进行解析,解析后的数据类型为字典(NSDictionary). 最终完整的[代码](id:finalCode)为:
+iOS提供了NSJSONSerialization类,对JSON进行解析,解析后的数据类型为字典(NSDictionary). 最终完整的代码为:
 
 ```c
 - (void) fetchFeed {
@@ -67,7 +67,7 @@ iOS提供了NSJSONSerialization类,对JSON进行解析,解析后的数据类型�
 
 
 ```
-
+返回[顶部](#top)
 At 10:04 PM
 
 ##参考资料
