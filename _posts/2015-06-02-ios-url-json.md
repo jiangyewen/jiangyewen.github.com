@@ -6,27 +6,27 @@ tags: [iOS入门,webView,Object C]
 ---
 ##如何请求一个给定的url并处理返回的数据
 
-1. 将给定的url字符串转化为 NSURL 对象
+*  将给定的url字符串转化为 NSURL 对象
 
-```object c
+```c
   NSString * requestString = @"http://bookapi.bignerdranch.com/courses.json";
   NSURL * url = [NSURL URLWithString:requestString];
 ```
 
-2.  初始化请求 NSURLRequest
+*  初始化请求 NSURLRequest
 
 NSURLRequest 包含了请求的各种参数,如http头部,超时时间,缓存策略等.
 
-```object c
+```c
   NSString * requestString = @"http://bookapi.bignerdranch.com/courses.json";
   NSURL * url = [NSURL URLWithString:requestString];
   NSURLRequest  *req = [NSURLRequest requestWithURL:url];
 
 ```
 
-3. 将一个请求看做一个任务,一个任务的初始化状态是suspend, 当发送resume消息给任务后,请求任务就开始执行. 其中,一个任务中包含了回调函数(completionHandler),回调函数对返回的数据(Json或者XML等)进行处理.
+*  将一个请求看做一个任务,一个任务的初始化状态是suspend, 当发送resume消息给任务后,请求任务就开始执行. 其中,一个任务中包含了回调函数(completionHandler),回调函数对返回的数据(Json或者XML等)进行处理.
 
-```object c
+```c
 - (void) fetchFeed {
     NSString * requestString = @"http://bookapi.bignerdranch.com/courses.json";
     NSURL * url = [NSURL URLWithString:requestString];
@@ -42,10 +42,11 @@ NSURLRequest 包含了请求的各种参数,如http头部,超时时间,缓存策
 }
 ```
 
-4. 对JSON格式数据的解析
+* 对JSON格式数据的解析
+
 iOS提供了NSJSONSerialization类,对JSON进行解析,解析后的数据类型为字典(NSDictionary). 最终完整的代码为:
 
-```object c
+```c
 - (void) fetchFeed {
     NSString * requestString = @"http://bookapi.bignerdranch.com/courses.json";
     NSURL * url = [NSURL URLWithString:requestString];
