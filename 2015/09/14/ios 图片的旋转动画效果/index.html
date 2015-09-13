@@ -22,7 +22,7 @@
 
 
 
-  <meta name="keywords" content="github,life,pages," />
+  <meta name="keywords" content="CGAffineTransform,Object C,anchorPoint,iOS入门," />
 
 
 
@@ -45,7 +45,7 @@
 
 
 
-  <title> 终于进入了博客的第三层境界了 // Frank </title>
+  <title> iOS图片的旋转动画效果 // Frank </title>
 </head>
 
 <body>
@@ -117,7 +117,7 @@
           
           
             
-              终于进入了博客的第三层境界了
+              iOS图片的旋转动画效果
             
           
         </h1>
@@ -125,7 +125,7 @@
 
       <div class="post-meta">
         <span class="post-time">
-          发表于 2014-03-13
+          发表于 2015-09-14
         </span>
 
         
@@ -134,8 +134,8 @@
           
             <span class="post-comments-count">
             &nbsp; | &nbsp;
-            <a href="/2014/03/13/2014-03-13-first-blog/#comments" >
-              <span class="post-comments-count ds-thread-count" data-thread-key="2014/03/13/2014-03-13-first-blog/"></span>
+            <a href="/2015/09/14/ios 图片的旋转动画效果/#comments" >
+              <span class="post-comments-count ds-thread-count" data-thread-key="2015/09/14/ios 图片的旋转动画效果/"></span>
             </a>
           </span>
           
@@ -149,10 +149,42 @@
       
 
       
-        <p>都说博客有三境界：一是使用新浪网易等免费的博客，二是自己买空间和域名搭建Wordpress，最后是来到Github Pages了。</p>
-<p>折腾了两天，衣带渐宽，发现自己设计的细胞还是不够。于是在<a href="http://lhzhang.com" target="_blank" rel="external">rusty shutter</a>的基础上，修改了下代码，加入了国内的多说评论模块和Google Analytics统计信息，终于可以投入使用了。已经在Sina SAE搭建的<a href="http://yewen.sinaapp.com" target="_blank" rel="external">博客</a>，就废弃吧。</p>
-<p>众里寻他千百度，毕业后期待人生下个美好的阶段，将点滴记录于此。</p>
-<p>At 1:04 a.m.</p>
+        <h3 id="目的">目的</h3><blockquote>
+<p>根据当前时间, 实现钟表的时分秒3根指针的移动</p>
+</blockquote>
+<h3 id="界面">界面</h3><p><img src="/1442160050001.png" alt="Alt text"></p>
+<h3 id="物体移动的计算方法">物体移动的计算方法</h3><p><strong>旋转矩阵M</strong></p>
+<blockquote>
+<p>把物体从A点(x,y)移动到B点(x1,y1)的计算方法如下:<br>矩阵B = 矩阵A <em> 移动矩阵M<br>对于顺时针旋转, M等于<br><img src="/1442160401385.png" alt="Alt text"><br>在ios中,  顺时针旋转的矩阵M无需自己计算, 可由下面的方法得出:<br>`CGAffineTransform matrix = CGAffineTransformMakeRotation(angle</em>M_PI/180);`<br>即CGAffineTransformMakeRotation输入的参数为要顺时针旋转的弧度,输出为旋转的矩阵M</p>
+</blockquote>
+<p><strong>anchorPoint</strong></p>
+<blockquote>
+<p><strong>anchorPoint</strong>为旋转点, 即以anchorPoint为中心, 对物体进行整体旋转.<br><img src="/1442160889138.png" alt="Alt text"><br>上图中, 中心的anchorPoint为 (0.5,0.5),左上角为(0,0); 右下角为(1,1)</p>
+</blockquote>
+<h3 id="实现代码">实现代码</h3><ul>
+<li>输入三根指针的任意一根和旋转的角度,即可旋转<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">- (void) moveHand :(UIView *)hand toAngle:(CGFloat) angle&#123;&#10;    [[hand layer] setAnchorPoint:CGPointMake(0.4f, 0.75f)];&#10;    [[hand layer] setPosition:CGPointMake(160.0f, 170.0f)]; // &#37325;&#26032;&#23558;&#25351;&#38024;&#32622;&#20110;&#34920;&#30424;&#20013;&#38388;&#10;    [UIView animateWithDuration:0.5 animations:^&#123;&#10;        CGAffineTransform matrix =  CGAffineTransformMakeRotation(angle*M_PI/180);&#10;        [[hand layer] setAffineTransform:matrix]; //&#23454;&#29616;&#36716;&#21160;&#10;    &#125;];&#10;&#10;&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>anchorPoint点得位置<br><img src="/1442161266216.png" alt="Alt text"></p>
+<ul>
+<li><p>根据当前的时间,移动指针</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">- (void) moveHandToLocalTime&#123;&#10;&#9;//&#33719;&#21462;&#24403;&#21069;&#30340;&#26102;&#38388;&#10;    NSCalendar *calendar = [NSCalendar currentCalendar];&#10;    NSInteger comp = (NSCalendarUnitHour | NSCalendarUnitMinute | NSCalendarUnitSecond);&#10;    NSDateComponents *components = [calendar components:comp fromDate:[NSDate date]];&#10;    &#10;    [self moveHand:self.hoursHand toAngle:[components hour] * 360.0f / 24.0f]; &#10;    //24h&#21046;&#24230;,12h&#26059;&#36716;&#19968;&#22280;, x h&#26059;&#36716; (x/2 /12)*360&#10;    [self moveHand:self.minutesHand toAngle:[components minute] * 360.0f / 60.0f]; &#10;    // 60min&#26059;&#36716;&#19968;&#22280;, x min&#26059;&#36716; (x/60)*360&#10;    [self moveHand:self.secondsHand toAngle:[components second] * 360.0f / 60.0f];&#10;    &#10;&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>当view移动到window上时, 触发Timer, 间隔为1s,重复执行<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">void</span>) didMoveToWindow&#123;</span><br><span class="line">    [<span class="built_in">NSTimer</span> scheduledTimerWithTimeInterval:<span class="number">1.0</span></span><br><span class="line">                                     target:<span class="keyword">self</span>                                                                   selector:<span class="keyword">@selector</span>(moveHandToLocalTime)</span><br><span class="line">                                   userInfo:<span class="literal">nil</span></span><br><span class="line">                                    repeats:<span class="literal">YES</span>];</span><br><span class="line">    [<span class="keyword">self</span> oscillatePendulum];</span><br><span class="line">    </span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="对于钟摆的移动,_可分为四个阶段:">对于钟摆的移动, 可分为四个阶段:</h3><p><img src="/1442162089697.png" alt="Alt text"></p>
+<blockquote>
+<ol>
+<li>摆向15°减速</li>
+<li>摆向0° 加速</li>
+<li>-摆向15°减速</li>
+<li>摆向0°加速</li>
+</ol>
+</blockquote>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">void</span>)oscillatePendulum</span><br><span class="line">&#123;</span><br><span class="line">    [[self.pendulum layer] setAnchorPoint:CGPointMake(<span class="number">0.5f</span>, <span class="number">0.0f</span>)];</span><br><span class="line">    [[self.pendulum layer] setPosition:CGPointMake(<span class="number">0.0f</span>, <span class="number">0.0f</span>)];</span><br><span class="line">    </span><br><span class="line">    CAKeyframeAnimation *animation = [CAKeyframeAnimation animationWithKeyPath:@<span class="string">"transform.rotation.z"</span>];</span><br><span class="line">    animation.duration = <span class="number">1.5f</span>;</span><br><span class="line">    animation.repeatCount = INT64_MAX;</span><br><span class="line">    animation.values = @[@(<span class="number">0.0f</span> * M_PI / <span class="number">180.0f</span>), @(<span class="number">15.0f</span> * M_PI / <span class="number">180.0f</span>),</span><br><span class="line">                         @(<span class="number">0.0f</span> * M_PI / <span class="number">180.0f</span>), @(-<span class="number">15.0f</span> * M_PI / <span class="number">180.0f</span>),</span><br><span class="line">                         @(<span class="number">0.0f</span> * M_PI / <span class="number">180.0f</span>)];</span><br><span class="line">    </span><br><span class="line">    animation.keyTimes = @[@(<span class="number">0.0f</span>), @(<span class="number">0.26f</span>), @(<span class="number">0.50f</span>), @(<span class="number">0.74f</span>), @(<span class="number">1.0f</span>)];</span><br><span class="line">    animation.timingFunctions = @[</span><br><span class="line">                                  [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut],</span><br><span class="line">                                  [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn],</span><br><span class="line">                                  [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut],</span><br><span class="line">                                  [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn],</span><br><span class="line">                                  ];</span><br><span class="line">    </span><br><span class="line">    [[self.pendulum layer] addAnimation:animation forKey:nil];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
       
     </div>
@@ -161,11 +193,13 @@
       
         <div class="post-tags">
           
-            <a href="/tags/github/"> #github </a>
+            <a href="/tags/CGAffineTransform/"> #CGAffineTransform </a>
           
-            <a href="/tags/life/"> #life </a>
+            <a href="/tags/Object-C/"> #Object C </a>
           
-            <a href="/tags/pages/"> #pages </a>
+            <a href="/tags/anchorPoint/"> #anchorPoint </a>
+          
+            <a href="/tags/iOS入门/"> #iOS入门 </a>
           
         </div>
       
@@ -174,11 +208,11 @@
         <div class="post-nav">
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2014/03/14/2014-03-14-single-linked-list-problems/">单链表相关问题</a>
-            
           </div>
 
           <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/06/07/2015-06-07-ios-saving-loading-local-data/">iOS 保存和读取本地数据</a>
             
           </div>
         </div>
@@ -194,8 +228,8 @@
     
       <div class="comments" id="comments">
         
-          <div class="ds-thread" data-thread-key="2014/03/13/2014-03-13-first-blog/"
-               data-title="终于进入了博客的第三层境界了" data-url="http://jiangyewen.github.com/2014/03/13/2014-03-13-first-blog/">
+          <div class="ds-thread" data-thread-key="2015/09/14/ios 图片的旋转动画效果/"
+               data-title="iOS图片的旋转动画效果" data-url="http://jiangyewen.github.com/2015/09/14/ios 图片的旋转动画效果/">
           </div>
         
       </div>
@@ -290,7 +324,7 @@
           <div class="post-toc">
             
             
-              <p class="post-toc-empty">此文章未包含目录</p>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#目的"><span class="nav-number">1.</span> <span class="nav-text">目的</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#界面"><span class="nav-number">2.</span> <span class="nav-text">界面</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#物体移动的计算方法"><span class="nav-number">3.</span> <span class="nav-text">物体移动的计算方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#实现代码"><span class="nav-number">4.</span> <span class="nav-text">实现代码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#对于钟摆的移动,_可分为四个阶段:"><span class="nav-number">5.</span> <span class="nav-text">对于钟摆的移动, 可分为四个阶段:</span></a></li></ol></div>
             
           </div>
           <div class="post-toc-indicator-bottom post-toc-indicator"></div>
