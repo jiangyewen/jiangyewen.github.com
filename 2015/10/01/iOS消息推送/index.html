@@ -28,7 +28,7 @@
 
 
 
-  <meta name="keywords" content="CGAffineTransform,Object C,anchorPoint,iOS入门," />
+  <meta name="keywords" content="LocationNotification,RemoteNotification,iOS入门," />
 
 
 
@@ -37,21 +37,19 @@
   <link rel="shorticon icon" type="image/x-icon" href="/favicon.ico?v=0.4.3" />
 
 
-<meta name="description" content="本文实现了:根据当前时间, 旋转时钟的3指针(图片),显示当前时间.">
+<meta name="description" content="iOS的推送分为2种:远程服务器推送和本地推送服务">
 <meta property="og:type" content="article">
-<meta property="og:title" content="iOS图片的旋转动画效果">
-<meta property="og:url" content="http://jiangywen.github.io/2015/09/14/ios 图片的旋转动画效果/index.html">
+<meta property="og:title" content="iOS消息推送">
+<meta property="og:url" content="http://jiangywen.github.io/2015/10/01/iOS消息推送/index.html">
 <meta property="og:site_name" content="蒋业文">
-<meta property="og:description" content="本文实现了:根据当前时间, 旋转时钟的3指针(图片),显示当前时间.">
-<meta property="og:image" content="http://jiangywen.github.io/media/1442160050001.png">
-<meta property="og:image" content="http://jiangywen.github.io/media/1442160401385.png">
-<meta property="og:image" content="http://jiangywen.github.io/media/1442160889138.png">
-<meta property="og:image" content="http://jiangywen.github.io/media/1442161266216.png">
-<meta property="og:image" content="http://jiangywen.github.io/media/1442162089697.png">
-<meta property="og:updated_time" content="2015-09-13T18:03:41.000Z">
+<meta property="og:description" content="iOS的推送分为2种:远程服务器推送和本地推送服务">
+<meta property="og:image" content="http://jiangywen.github.io/media/1443683185275.png">
+<meta property="og:image" content="http://jiangywen.github.io/media/1443684969904.png">
+<meta property="og:image" content="http://jiangywen.github.io/media/1443685901613.png">
+<meta property="og:updated_time" content="2015-10-01T11:52:01.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="iOS图片的旋转动画效果">
-<meta name="twitter:description" content="本文实现了:根据当前时间, 旋转时钟的3指针(图片),显示当前时间.">
+<meta name="twitter:title" content="iOS消息推送">
+<meta name="twitter:description" content="iOS的推送分为2种:远程服务器推送和本地推送服务">
 
 
 <script type="text/javascript" id="hexo.configuration">
@@ -61,7 +59,7 @@
   };
 </script>
 
-  <title> iOS图片的旋转动画效果 | 蒋业文 </title>
+  <title> iOS消息推送 | 蒋业文 </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -199,7 +197,7 @@
           
           
             
-              iOS图片的旋转动画效果
+              iOS消息推送
             
           
         </h1>
@@ -208,8 +206,8 @@
       <div class="post-meta">
         <span class="post-time">
           发表于
-          <time itemprop="dateCreated" datetime="2015-09-14T00:00:00+08:00" content="2015-09-14">
-            2015-09-14
+          <time itemprop="dateCreated" datetime="2015-10-01T00:00:00+08:00" content="2015-10-01">
+            2015-10-01
           </time>
         </span>
 
@@ -219,8 +217,8 @@
           
             <span class="post-comments-count">
               &nbsp; | &nbsp;
-              <a href="/2015/09/14/ios 图片的旋转动画效果/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2015/09/14/ios 图片的旋转动画效果/" itemprop="commentsCount"></span>
+              <a href="/2015/10/01/iOS消息推送/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2015/10/01/iOS消息推送/" itemprop="commentsCount"></span>
               </a>
             </span>
           
@@ -234,43 +232,35 @@
       
 
       
-        <span itemprop="articleBody"><h3 id="目的">目的</h3><blockquote>
-<p>根据当前时间, 实现钟表的时分秒3根指针的移动</p>
-</blockquote>
-<h3 id="界面">界面</h3><p><img src="/media/1442160050001.png" alt="Alt text"></p>
-<h3 id="物体移动的计算方法">物体移动的计算方法</h3><p><strong>旋转矩阵M</strong></p>
-<blockquote>
-<p>把物体从A点(x,y)移动到B点(x1,y1)的计算方法如下:<br>矩阵B = 矩阵A <em> 移动矩阵M<br>对于顺时针旋转, M等于<br><img src="/media/1442160401385.png" alt="Alt text"><br>在ios中,  顺时针旋转的矩阵M无需自己计算, 可由下面的方法得出:<br>`CGAffineTransform matrix = CGAffineTransformMakeRotation(angle</em>M_PI/180);`<br>即CGAffineTransformMakeRotation输入的参数为要顺时针旋转的弧度,输出为旋转的矩阵M</p>
-</blockquote>
-<p><strong>anchorPoint</strong></p>
-<blockquote>
-<p><strong>anchorPoint</strong>为旋转点, 即以anchorPoint为中心, 对物体进行整体旋转.<br><img src="/media/1442160889138.png" alt="Alt text"><br>上图中, 中心的anchorPoint为 (0.5,0.5),左上角为(0,0); 右下角为(1,1)</p>
-</blockquote>
-<h3 id="实现代码">实现代码</h3><ul>
-<li>输入三根指针的任意一根和旋转的角度,即可旋转<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">- (void) moveHand :(UIView *)hand toAngle:(CGFloat) angle&#123;&#10;    [[hand layer] setAnchorPoint:CGPointMake(0.4f, 0.75f)];&#10;    [[hand layer] setPosition:CGPointMake(160.0f, 170.0f)]; // &#37325;&#26032;&#23558;&#25351;&#38024;&#32622;&#20110;&#34920;&#30424;&#20013;&#38388;&#10;    [UIView animateWithDuration:0.5 animations:^&#123;&#10;        CGAffineTransform matrix =  CGAffineTransformMakeRotation(angle*M_PI/180);&#10;        [[hand layer] setAffineTransform:matrix]; //&#23454;&#29616;&#36716;&#21160;&#10;    &#125;];&#10;&#10;&#125;</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<p>anchorPoint点得位置<br><img src="/media/1442161266216.png" alt="Alt text"></p>
+        <span itemprop="articleBody"><h3 id="推送的分类">推送的分类</h3><p>iOS的推送分为2种:</p>
 <ul>
-<li><p>根据当前的时间,移动指针</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">- (void) moveHandToLocalTime&#123;&#10;&#9;//&#33719;&#21462;&#24403;&#21069;&#30340;&#26102;&#38388;&#10;    NSCalendar *calendar = [NSCalendar currentCalendar];&#10;    NSInteger comp = (NSCalendarUnitHour | NSCalendarUnitMinute | NSCalendarUnitSecond);&#10;    NSDateComponents *components = [calendar components:comp fromDate:[NSDate date]];&#10;    &#10;    [self moveHand:self.hoursHand toAngle:[components hour] * 360.0f / 24.0f]; &#10;    //24h&#21046;&#24230;,12h&#26059;&#36716;&#19968;&#22280;, x h&#26059;&#36716; (x/2 /12)*360&#10;    [self moveHand:self.minutesHand toAngle:[components minute] * 360.0f / 60.0f]; &#10;    // 60min&#26059;&#36716;&#19968;&#22280;, x min&#26059;&#36716; (x/60)*360&#10;    [self moveHand:self.secondsHand toAngle:[components second] * 360.0f / 60.0f];&#10;    &#10;&#125;</span><br></pre></td></tr></table></figure>
-<ul>
-<li>当view移动到window上时, 触发Timer, 间隔为1s,重复执行<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">void</span>) didMoveToWindow&#123;</span><br><span class="line">    [<span class="built_in">NSTimer</span> scheduledTimerWithTimeInterval:<span class="number">1.0</span></span><br><span class="line">                                     target:<span class="keyword">self</span>                                                                   selector:<span class="keyword">@selector</span>(moveHandToLocalTime)</span><br><span class="line">                                   userInfo:<span class="literal">nil</span></span><br><span class="line">                                    repeats:<span class="literal">YES</span>];</span><br><span class="line">    [<span class="keyword">self</span> oscillatePendulum];</span><br><span class="line">    </span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-</li>
-</ul>
-<h3 id="对于钟摆的移动,_可分为四个阶段:">对于钟摆的移动, 可分为四个阶段:</h3><p><img src="/media/1442162089697.png" alt="Alt text"></p>
+<li><p>远程服务器推送-<strong>RemoteNotification</strong></p>
 <blockquote>
+<p>服务器端根据Apple分配的SSL证书和每个用户的Device Token,依据一定的格式,将消息发送到APNs(Apple Push Notification Service)服务器,APNs服务器进行权限验证,通过后将消息转发到对于的token(用户)上</p>
+</blockquote>
+</li>
+<li><p>本地推送服务-<strong>LocalNotification</strong></p>
+<blockquote>
+<p>本地推送推送依赖于某一时间的触发,当时间达到后, 即发送提醒的信息,适用于todo,闹钟等app;</p>
+</blockquote>
+</li>
+</ul>
+<h3 id="RemoteNotification">RemoteNotification</h3><h4 id="客户端Token获取的原理:">客户端Token获取的原理:</h4><p><img src="/media/1443683185275.png" alt="Alt text"><br>￼￼</p>
 <ol>
-<li>摆向15°减速</li>
-<li>摆向0° 加速</li>
-<li>-摆向15°减速</li>
-<li>摆向0°加速</li>
+<li>手机开机联网后,系统后台自动连接APNs服务器;</li>
+<li>APNs为这台设备分配一个token;</li>
+<li>经过用户的允许后, 你的app可以通过方法<code>application: didRegisterForRemoteNotificationsWithDeviceToken</code>获取到用户的token;<br>通知的类型有三种(badge-app图标右上角红色数字,alert常用的锁屏时出现的消息,sound即声音提醒), 可以同时组合这3种通知的类型:<br><img src="/media/1443684969904.png" alt="Alt text"></li>
 </ol>
-</blockquote>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">void</span>)oscillatePendulum</span><br><span class="line">&#123;</span><br><span class="line">    [[self.pendulum layer] setAnchorPoint:CGPointMake(<span class="number">0.5f</span>, <span class="number">0.0f</span>)];</span><br><span class="line">    [[self.pendulum layer] setPosition:CGPointMake(<span class="number">0.0f</span>, <span class="number">0.0f</span>)];</span><br><span class="line">    </span><br><span class="line">    CAKeyframeAnimation *animation = [CAKeyframeAnimation animationWithKeyPath:@<span class="string">"transform.rotation.z"</span>];</span><br><span class="line">    animation.duration = <span class="number">1.5f</span>;</span><br><span class="line">    animation.repeatCount = INT64_MAX;</span><br><span class="line">    animation.values = @[@(<span class="number">0.0f</span> * M_PI / <span class="number">180.0f</span>), @(<span class="number">15.0f</span> * M_PI / <span class="number">180.0f</span>),</span><br><span class="line">                         @(<span class="number">0.0f</span> * M_PI / <span class="number">180.0f</span>), @(-<span class="number">15.0f</span> * M_PI / <span class="number">180.0f</span>),</span><br><span class="line">                         @(<span class="number">0.0f</span> * M_PI / <span class="number">180.0f</span>)];</span><br><span class="line">    </span><br><span class="line">    animation.keyTimes = @[@(<span class="number">0.0f</span>), @(<span class="number">0.26f</span>), @(<span class="number">0.50f</span>), @(<span class="number">0.74f</span>), @(<span class="number">1.0f</span>)];</span><br><span class="line">    animation.timingFunctions = @[</span><br><span class="line">                                  [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut],</span><br><span class="line">                                  [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn],</span><br><span class="line">                                  [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut],</span><br><span class="line">                                  [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn],</span><br><span class="line">                                  ];</span><br><span class="line">    </span><br><span class="line">    [[self.pendulum layer] addAnimation:animation forKey:nil];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</span>
+<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">-</span> (void)<span class="tag">applicationDidFinishLaunching</span>:(UIApplication *)<span class="tag">application</span>&#123;</span><br><span class="line">	<span class="attr_selector">[[UIApplication sharedApplication]</span> <span class="tag">registerForRemoteNotificationTypes</span>:(UIRemoteNotificationTypeSound | UIRemoteNotificationTypeAlert)];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ol>
+<li>app将token上传,服务器保存token,便于后续的推送;</li>
+</ol>
+<h4 id="服务器端的推送原理">服务器端的推送原理</h4><p>根据保存的token和ssl证书, 对APNs发送固定二进制格式的包,推送的python脚本大致如下:<br><img src="/media/1443685901613.png" alt="Alt text"></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> socket, ssl, struct</span><br><span class="line">token = <span class="string">'a4b8e18bd065c6ea7def614631ee4abaf26dbd56cde307e596fbf838fbb03296'</span></span><br><span class="line">json = <span class="string">'&#123;"aps": &#123;"alert": &#123;"body": "Hello Frank"&#125;&#125;&#125;'</span></span><br><span class="line"></span><br><span class="line">//对以上信息,pack成二进制的包</span><br><span class="line">byteToken = token.decode(<span class="string">'hex'</span>)</span><br><span class="line">binary = struct.pack(<span class="string">'!BH32sH'</span>, <span class="number">0</span>, <span class="number">32</span>, byteToken, len(json))</span><br><span class="line">binary += json</span><br><span class="line"></span><br><span class="line">// 推送binary包</span><br><span class="line">connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)</span><br><span class="line">ssl_sock = ssl.wrap_socket(connection, certfile=<span class="string">'yourCertificate.pem'</span>)</span><br><span class="line">ssl_sock.connect((<span class="string">'gateway.sandbox.push.apple.com'</span>, <span class="number">2195</span>)) // 官网分配的地址和端口</span><br><span class="line">ssl_sock.write(alert)</span><br><span class="line">ssl_sock.close()</span><br></pre></td></tr></table></figure>
+<h4 id="用户点击通知消息后,触发的事件">用户点击通知消息后,触发的事件</h4><p>点击消息后, 触发<code>application:(UIApplication *)application
+     didReceiveRemoteNotification:(NSDictionary *)userInfo</code><br>     推送包种的json已经被转化为NSDictionary类型,可将消息提取出来, 展示在界面中.</p>
+<h3 id="LocalNotification">LocalNotification</h3><p>本地消息的推送依赖时间的触发</p>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">  - (<span class="keyword">void</span>) applicationDidFinishLaunching:(<span class="built_in">UIApplication</span> *)application&#123;</span><br><span class="line">    <span class="built_in">UILocalNotification</span> * notification = [[<span class="built_in">UILocalNotification</span> alloc] init];</span><br><span class="line">    notification<span class="variable">.fireDate</span> = [<span class="built_in">NSDate</span> dateWithTimeIntervalSinceNow:<span class="number">10</span>];</span><br><span class="line">    notification<span class="variable">.alertBody</span> = <span class="string">@"HI Frank!!"</span>;</span><br><span class="line">    [[<span class="built_in">UIApplication</span> sharedApplication] scheduleLocalNotification:notification];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></span>
       
     </div>
 
@@ -278,11 +268,9 @@
       
         <div class="post-tags">
           
-            <a href="/tags/CGAffineTransform/" rel="tag">#CGAffineTransform</a>
+            <a href="/tags/LocationNotification/" rel="tag">#LocationNotification</a>
           
-            <a href="/tags/Object-C/" rel="tag">#Object C</a>
-          
-            <a href="/tags/anchorPoint/" rel="tag">#anchorPoint</a>
+            <a href="/tags/RemoteNotification/" rel="tag">#RemoteNotification</a>
           
             <a href="/tags/iOS入门/" rel="tag">#iOS入门</a>
           
@@ -293,13 +281,11 @@
         <div class="post-nav">
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2015/10/01/iOS消息推送/" rel="prev">iOS消息推送</a>
-            
           </div>
 
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2015/06/07/2015-06-07-ios-saving-loading-local-data/" rel="next">iOS 保存和读取本地数据</a>
+              <a href="/2015/09/14/ios 图片的旋转动画效果/" rel="next">iOS图片的旋转动画效果</a>
             
           </div>
         </div>
@@ -324,8 +310,8 @@
         
           <div class="comments" id="comments">
             
-              <div class="ds-thread" data-thread-key="2015/09/14/ios 图片的旋转动画效果/"
-                   data-title="iOS图片的旋转动画效果" data-url="http://jiangywen.github.io/2015/09/14/ios 图片的旋转动画效果/">
+              <div class="ds-thread" data-thread-key="2015/10/01/iOS消息推送/"
+                   data-title="iOS消息推送" data-url="http://jiangywen.github.io/2015/10/01/iOS消息推送/">
               </div>
             
           </div>
@@ -417,7 +403,7 @@
           <div class="post-toc">
             
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#目的"><span class="nav-number">1.</span> <span class="nav-text">目的</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#界面"><span class="nav-number">2.</span> <span class="nav-text">界面</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#物体移动的计算方法"><span class="nav-number">3.</span> <span class="nav-text">物体移动的计算方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#实现代码"><span class="nav-number">4.</span> <span class="nav-text">实现代码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#对于钟摆的移动,_可分为四个阶段:"><span class="nav-number">5.</span> <span class="nav-text">对于钟摆的移动, 可分为四个阶段:</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#推送的分类"><span class="nav-number">1.</span> <span class="nav-text">推送的分类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RemoteNotification"><span class="nav-number">2.</span> <span class="nav-text">RemoteNotification</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#客户端Token获取的原理:"><span class="nav-number">2.1.</span> <span class="nav-text">客户端Token获取的原理:</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#服务器端的推送原理"><span class="nav-number">2.2.</span> <span class="nav-text">服务器端的推送原理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#用户点击通知消息后,触发的事件"><span class="nav-number">2.3.</span> <span class="nav-text">用户点击通知消息后,触发的事件</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#LocalNotification"><span class="nav-number">3.</span> <span class="nav-text">LocalNotification</span></a></li></ol></div>
             
           </div>
           <div class="post-toc-indicator-bottom post-toc-indicator"></div>
