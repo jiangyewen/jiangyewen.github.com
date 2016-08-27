@@ -1,0 +1,686 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>蒋业文</title>
+  
+  <link href="/atom.xml" rel="self"/>
+  
+  <link href="http://jiangywen.github.io/"/>
+  <updated>2016-08-27T17:24:31.000Z</updated>
+  <id>http://jiangywen.github.io/</id>
+  
+  <author>
+    <name>蒋业文</name>
+    
+  </author>
+  
+  <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>iOS通讯录联系人字母索引的实现</title>
+    <link href="http://jiangywen.github.io/2015/11/14/iOS%E9%80%9A%E8%AE%AF%E5%BD%95%E8%81%94%E7%B3%BB%E4%BA%BA%E5%AD%97%E6%AF%8D%E7%B4%A2%E5%BC%95%E7%9A%84%E5%AE%9E%E7%8E%B0/"/>
+    <id>http://jiangywen.github.io/2015/11/14/iOS通讯录联系人字母索引的实现/</id>
+    <published>2015-11-13T16:00:00.000Z</published>
+    <updated>2016-08-27T17:24:31.000Z</updated>
+    
+    <content type="html"><![CDATA[<h3 id="Demo展示">Demo展示</h3><ul>
+<li><p>图片展示tableViewController的每一个section的title, 右方是字母索引列表; iOS会根据不同的语言,字母也相应改变. 比如,日语就包含了平假名. 中文和英文默认都是A-Z和#.</p>
+</li>
+<li><p>点击右边字母索引, table跳相应section,并修改section的标题</p>
+<a id="more"></a>
+</li>
+</ul>
+<p><img src="/media/1447512248079.png" alt="Alt text"></p>
+<h3 id="实现方法">实现方法</h3><ul>
+<li>创建一个sectionArray,用来保存section的索引序号和这个section包含的所有联系人. 层次如下:<blockquote>
+<p> sectionArray[sectionIndex] -&gt; N个联系人(Object)<br> 每个联系人(object)-&gt;人名,电话等信息</p>
+</blockquote>
+</li>
+</ul>
+<ul>
+<li><p>创建一个collation</p>
+<p>代码如下:</p>
+</li>
+</ul>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 定义上面说到的2个私有属性: </span></span><br><span class="line"><span class="class"><span class="keyword">@interface</span> <span class="title">PhoneBookTableViewController</span> ()</span></span><br><span class="line"><span class="keyword">@property</span>(<span class="keyword">nonatomic</span>,<span class="keyword">strong</span>) <span class="built_in">UILocalizedIndexedCollation</span> *collation;</span><br><span class="line"><span class="keyword">@property</span> (<span class="keyword">nonatomic</span>,<span class="keyword">strong</span>) <span class="built_in">NSMutableArray</span> *sectionArray;</span><br><span class="line"><span class="keyword">@end</span></span><br><span class="line"></span><br><span class="line">- (<span class="keyword">void</span>) setUpTableSection &#123;</span><br><span class="line">	<span class="comment">// 获取包含A-Z和#的collation class</span></span><br><span class="line">    <span class="keyword">self</span><span class="variable">.collation</span> = [<span class="built_in">UILocalizedIndexedCollation</span> currentCollation];</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//tableView section的的数目等于 collation的title(这里有27个section: A-Z,#)</span></span><br><span class="line">    <span class="built_in">NSUInteger</span> numberOfSections = [[<span class="keyword">self</span><span class="variable">.collation</span> sectionTitles] count];</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 创建一个新的 newSectionArray, 最后复制给sectionArray</span></span><br><span class="line">    <span class="built_in">NSMutableArray</span> *newSectionArray =  [[<span class="built_in">NSMutableArray</span> alloc]init];</span><br><span class="line">    <span class="comment">// 定义sectionArray的层次</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="built_in">NSUInteger</span> index = <span class="number">0</span>; index&lt;numberOfSections; index++) &#123;</span><br><span class="line">        [newSectionArray addObject:[[<span class="built_in">NSMutableArray</span> alloc]init]];</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// insert Persons info into newSectionArray</span></span><br><span class="line">    <span class="comment">//按照person的name划分section, 即"艾"姓的,划分到A section</span></span><br><span class="line">    <span class="keyword">for</span> (Person * person <span class="keyword">in</span> <span class="keyword">self</span><span class="variable">.persons</span>) &#123;</span><br><span class="line">        <span class="built_in">NSUInteger</span> sectionIndex = [<span class="keyword">self</span><span class="variable">.collation</span> sectionForObject:person collationStringSelector:<span class="keyword">@selector</span>(name)];</span><br><span class="line">        [newSectionArray[sectionIndex] addObject:person];</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//sort the person of each section</span></span><br><span class="line">    <span class="comment">// 对每个section的persons 进行排序</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="built_in">NSUInteger</span> index=<span class="number">0</span>; index&lt;numberOfSections; index++) &#123;</span><br><span class="line">        <span class="built_in">NSMutableArray</span> *personsForSection = newSectionArray[index];</span><br><span class="line">        <span class="built_in">NSArray</span> *sortedPersonsForSection = [<span class="keyword">self</span><span class="variable">.collation</span> sortedArrayFromArray:personsForSection collationStringSelector:<span class="keyword">@selector</span>(name)];</span><br><span class="line">        newSectionArray[index] = sortedPersonsForSection;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">self</span><span class="variable">.sectionArray</span> = newSectionArray;</span><br><span class="line">    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>tableViewController其他的方式实现</li>
+</ul>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// sections数目等于collation的索引字母数目</span></span><br><span class="line">- (<span class="built_in">NSInteger</span>)numberOfSectionsInTableView:(<span class="built_in">UITableView</span> *)tableView &#123;</span><br><span class="line">    <span class="keyword">return</span> [[<span class="keyword">self</span><span class="variable">.collation</span> sectionTitles]count];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//每个section的人数 </span></span><br><span class="line">- (<span class="built_in">NSInteger</span>)tableView:(<span class="built_in">UITableView</span> *)tableView numberOfRowsInSection:(<span class="built_in">NSInteger</span>)section &#123;</span><br><span class="line">    <span class="keyword">return</span> [<span class="keyword">self</span><span class="variable">.sectionArray</span>[section] count];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">- (<span class="built_in">UITableViewCell</span> *)tableView:(<span class="built_in">UITableView</span> *)tableView cellForRowAtIndexPath:(<span class="built_in">NSIndexPath</span> *)indexPath &#123;</span><br><span class="line">    <span class="built_in">UITableViewCell</span> *cell = [tableView dequeueReusableCellWithIdentifier:<span class="string">@"cellForPerson"</span> forIndexPath:indexPath];</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">NSUInteger</span> section = indexPath<span class="variable">.section</span>;</span><br><span class="line">    <span class="built_in">NSUInteger</span> row = indexPath<span class="variable">.row</span>;</span><br><span class="line">    Person *person = <span class="keyword">self</span><span class="variable">.sectionArray</span>[section][row];</span><br><span class="line">    cell<span class="variable">.textLabel</span><span class="variable">.text</span> = [<span class="built_in">NSString</span> stringWithFormat:<span class="string">@"%@"</span>,person<span class="variable">.name</span>];</span><br><span class="line">    <span class="keyword">return</span> cell;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// tableView的标题栏,最上方</span></span><br><span class="line">- (<span class="built_in">NSString</span> *)tableView:(<span class="built_in">UITableView</span> *)tableView titleForHeaderInSection:(<span class="built_in">NSInteger</span>)section&#123;</span><br><span class="line">    <span class="keyword">return</span> [<span class="keyword">self</span><span class="variable">.collation</span> sectionTitles][section];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// tableView向collation请求索引的字母列表数组</span></span><br><span class="line">- (<span class="built_in">NSArray</span>&lt;<span class="built_in">NSString</span> *&gt; *)sectionIndexTitlesForTableView:(<span class="built_in">UITableView</span> *)tableView&#123;</span><br><span class="line">    <span class="keyword">return</span>  [<span class="keyword">self</span><span class="variable">.collation</span> sectionIndexTitles];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="Demo代码下载">Demo代码下载</h3><p>已push到<a href="https://github.com/jiangyewen/PhoneBook" target="_blank" rel="external">github</a>上面.</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h3 id=&quot;Demo展示&quot;&gt;Demo展示&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;图片展示tableViewController的每一个section的title, 右方是字母索引列表; iOS会根据不同的语言,字母也相应改变. 比如,日语就包含了平假名. 中文和英文默认都是A-Z和#.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;点击右边字母索引, table跳相应section,并修改section的标题&lt;/p&gt;
+    
+    </summary>
+    
+    
+      <category term="UILocalizedIndexedCollation" scheme="http://jiangywen.github.io/tags/UILocalizedIndexedCollation/"/>
+    
+      <category term="currentCollation" scheme="http://jiangywen.github.io/tags/currentCollation/"/>
+    
+      <category term="iOS入门" scheme="http://jiangywen.github.io/tags/iOS%E5%85%A5%E9%97%A8/"/>
+    
+      <category term="tableView" scheme="http://jiangywen.github.io/tags/tableView/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>开源中国iOS客户端架构图</title>
+    <link href="http://jiangywen.github.io/2015/10/21/%E5%AE%A2%E6%88%B7%E7%AB%AF%E5%B1%95%E7%A4%BA/"/>
+    <id>http://jiangywen.github.io/2015/10/21/客户端展示/</id>
+    <published>2015-10-20T16:00:00.000Z</published>
+    <updated>2016-08-27T17:23:41.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>本文实现了:根据根据开源中国网站的开源iOS客户端源码, 整理成图形,便于分块研究源码.<br><a id="more"></a></p>
+<h3 id="客户端展示">客户端展示</h3><blockquote>
+<p>开源中国的iOS客户端是开源的,可以在appStore下载. 其源码可以到开源中国自建的Gitlab上<a href="http://git.oschina.net/oschina/iphone-app" target="_blank" rel="external">下载</a></p>
+</blockquote>
+<p><img src="/media//1445437901181.png" alt="Alt text-c"></p>
+<p><img src="/media//1445437920168.png" alt="Alt text"></p>
+<h3 id="架构图">架构图</h3><p>推荐使用这个在线画图的<a href="https://www.processon.com" target="_blank" rel="external">ProcessOn</a>,非常不错.<br><img src="/media/Center_Topic.png" alt="Alt text"></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;本文实现了:根据根据开源中国网站的开源iOS客户端源码, 整理成图形,便于分块研究源码.&lt;br&gt;
+    
+    </summary>
+    
+    
+      <category term="OSC" scheme="http://jiangywen.github.io/tags/OSC/"/>
+    
+      <category term="Object C" scheme="http://jiangywen.github.io/tags/Object-C/"/>
+    
+      <category term="iOS入门" scheme="http://jiangywen.github.io/tags/iOS%E5%85%A5%E9%97%A8/"/>
+    
+      <category term="开源中国客户端" scheme="http://jiangywen.github.io/tags/%E5%BC%80%E6%BA%90%E4%B8%AD%E5%9B%BD%E5%AE%A2%E6%88%B7%E7%AB%AF/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>iOS消息推送</title>
+    <link href="http://jiangywen.github.io/2015/10/01/iOS%E6%B6%88%E6%81%AF%E6%8E%A8%E9%80%81/"/>
+    <id>http://jiangywen.github.io/2015/10/01/iOS消息推送/</id>
+    <published>2015-09-30T16:00:00.000Z</published>
+    <updated>2016-08-27T17:26:43.000Z</updated>
+    
+    <content type="html"><![CDATA[<h3 id="推送的分类">推送的分类</h3><p>iOS的推送分为2种:</p>
+<ul>
+<li><p>远程服务器推送-<strong>RemoteNotification</strong></p>
+<blockquote>
+<p>服务器端根据Apple分配的SSL证书和每个用户的Device Token,依据一定的格式,将消息发送到APNs(Apple Push Notification Service)服务器,APNs服务器进行权限验证,通过后将消息转发到对于的token(用户)上</p>
+</blockquote>
+</li>
+<li><p>本地推送服务-<strong>LocalNotification</strong></p>
+<blockquote>
+<p>本地推送推送依赖于某一时间的触发,当时间达到后, 即发送提醒的信息,适用于todo,闹钟等app;</p>
+</blockquote>
+</li>
+</ul>
+<a id="more"></a>
+<h3 id="RemoteNotification">RemoteNotification</h3><h4 id="客户端Token获取的原理:">客户端Token获取的原理:</h4><p><img src="/media/1443683185275.png" alt="Alt text"></p>
+<ol>
+<li>手机开机联网后,系统后台自动连接APNs服务器;</li>
+<li>APNs为这台设备分配一个token;</li>
+<li>经过用户的允许后, 你的app可以通过方法<code>application: didRegisterForRemoteNotificationsWithDeviceToken</code>获取到用户的token;<br>通知的类型有三种(badge-app图标右上角红色数字,alert常用的锁屏时出现的消息,sound即声音提醒), 可以同时组合这3种通知的类型:<br><img src="/media/1443684969904.png" alt="Alt text"></li>
+</ol>
+<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">-</span> (void)<span class="tag">applicationDidFinishLaunching</span>:(UIApplication *)<span class="tag">application</span>&#123;</span><br><span class="line">	<span class="attr_selector">[[UIApplication sharedApplication]</span> <span class="tag">registerForRemoteNotificationTypes</span>:(UIRemoteNotificationTypeSound | UIRemoteNotificationTypeAlert)];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ol>
+<li>app将token上传,服务器保存token,便于后续的推送;</li>
+</ol>
+<h4 id="服务器端的推送原理">服务器端的推送原理</h4><p>根据保存的token和ssl证书, 对APNs发送固定二进制格式的包,推送的python脚本大致如下:<br><img src="/media/1443685901613.png" alt="Alt text"></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> socket, ssl, struct</span><br><span class="line">token = <span class="string">'a4b8e18bd065c6ea7def614631ee4abaf26dbd56cde307e596fbf838fbb03296'</span></span><br><span class="line">json = <span class="string">'&#123;"aps": &#123;"alert": &#123;"body": "Hello Frank"&#125;&#125;&#125;'</span></span><br><span class="line"></span><br><span class="line">//对以上信息,pack成二进制的包</span><br><span class="line">byteToken = token.decode(<span class="string">'hex'</span>)</span><br><span class="line">binary = struct.pack(<span class="string">'!BH32sH'</span>, <span class="number">0</span>, <span class="number">32</span>, byteToken, len(json))</span><br><span class="line">binary += json</span><br><span class="line"></span><br><span class="line">// 推送binary包</span><br><span class="line">connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)</span><br><span class="line">ssl_sock = ssl.wrap_socket(connection, certfile=<span class="string">'yourCertificate.pem'</span>)</span><br><span class="line">ssl_sock.connect((<span class="string">'gateway.sandbox.push.apple.com'</span>, <span class="number">2195</span>)) // 官网分配的地址和端口</span><br><span class="line">ssl_sock.write(alert)</span><br><span class="line">ssl_sock.close()</span><br></pre></td></tr></table></figure>
+<h4 id="用户点击通知消息后,触发的事件">用户点击通知消息后,触发的事件</h4><p>点击消息后, 触发<code>application:(UIApplication *)application
+     didReceiveRemoteNotification:(NSDictionary *)userInfo</code><br>     推送包种的json已经被转化为NSDictionary类型,可将消息提取出来, 展示在界面中.</p>
+<h3 id="LocalNotification">LocalNotification</h3><p>本地消息的推送依赖时间的触发</p>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">  - (<span class="keyword">void</span>) applicationDidFinishLaunching:(<span class="built_in">UIApplication</span> *)application&#123;</span><br><span class="line">    <span class="built_in">UILocalNotification</span> * notification = [[<span class="built_in">UILocalNotification</span> alloc] init];</span><br><span class="line">    notification<span class="variable">.fireDate</span> = [<span class="built_in">NSDate</span> dateWithTimeIntervalSinceNow:<span class="number">10</span>];</span><br><span class="line">    notification<span class="variable">.alertBody</span> = <span class="string">@"HI Frank!!"</span>;</span><br><span class="line">    [[<span class="built_in">UIApplication</span> sharedApplication] scheduleLocalNotification:notification];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h3 id=&quot;推送的分类&quot;&gt;推送的分类&lt;/h3&gt;&lt;p&gt;iOS的推送分为2种:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;远程服务器推送-&lt;strong&gt;RemoteNotification&lt;/strong&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;服务器端根据Apple分配的SSL证书和每个用户的Device Token,依据一定的格式,将消息发送到APNs(Apple Push Notification Service)服务器,APNs服务器进行权限验证,通过后将消息转发到对于的token(用户)上&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;本地推送服务-&lt;strong&gt;LocalNotification&lt;/strong&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;本地推送推送依赖于某一时间的触发,当时间达到后, 即发送提醒的信息,适用于todo,闹钟等app;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+    
+    </summary>
+    
+    
+      <category term="LocationNotification" scheme="http://jiangywen.github.io/tags/LocationNotification/"/>
+    
+      <category term="RemoteNotification" scheme="http://jiangywen.github.io/tags/RemoteNotification/"/>
+    
+      <category term="iOS入门" scheme="http://jiangywen.github.io/tags/iOS%E5%85%A5%E9%97%A8/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>iOS图片的旋转动画效果</title>
+    <link href="http://jiangywen.github.io/2015/09/14/ios%20%E5%9B%BE%E7%89%87%E7%9A%84%E6%97%8B%E8%BD%AC%E5%8A%A8%E7%94%BB%E6%95%88%E6%9E%9C/"/>
+    <id>http://jiangywen.github.io/2015/09/14/ios 图片的旋转动画效果/</id>
+    <published>2015-09-13T16:00:00.000Z</published>
+    <updated>2016-08-27T17:27:51.000Z</updated>
+    
+    <content type="html"><![CDATA[<h3 id="目的">目的</h3><blockquote>
+<p>本文实现了:根据当前时间, 旋转时钟的3指针(图片),显示当前时间,实现钟表的时分秒3根指针的移动</p>
+</blockquote>
+<h3 id="界面">界面</h3><p><img src="/media/1442160050001.png" alt="Alt text"></p>
+<h3 id="物体移动的计算方法">物体移动的计算方法</h3><p><strong>旋转矩阵M</strong></p>
+<blockquote>
+<p>把物体从A点(x,y)移动到B点(x1,y1)的计算方法如下:<br>矩阵B = 矩阵A <em> 移动矩阵M<br>对于顺时针旋转, M等于<br><img src="/media/1442160401385.png" alt="Alt text"><br>在ios中,  顺时针旋转的矩阵M无需自己计算, 可由下面的方法得出:<br>`CGAffineTransform matrix = CGAffineTransformMakeRotation(angle</em>M_PI/180);`<br>即CGAffineTransformMakeRotation输入的参数为要顺时针旋转的弧度,输出为旋转的矩阵M</p>
+</blockquote>
+<a id="more"></a>
+<p><strong>anchorPoint</strong></p>
+<blockquote>
+<p><strong>anchorPoint</strong>为旋转点, 即以anchorPoint为中心, 对物体进行整体旋转.<br><img src="/media/1442160889138.png" alt="Alt text"><br>上图中, 中心的anchorPoint为 (0.5,0.5),左上角为(0,0); 右下角为(1,1)</p>
+</blockquote>
+<h3 id="实现代码">实现代码</h3><ul>
+<li>输入三根指针的任意一根和旋转的角度,即可旋转<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">- (void) moveHand :(UIView *)hand toAngle:(CGFloat) angle&#123;&#10;    [[hand layer] setAnchorPoint:CGPointMake(0.4f, 0.75f)];&#10;    [[hand layer] setPosition:CGPointMake(160.0f, 170.0f)]; // &#37325;&#26032;&#23558;&#25351;&#38024;&#32622;&#20110;&#34920;&#30424;&#20013;&#38388;&#10;    [UIView animateWithDuration:0.5 animations:^&#123;&#10;        CGAffineTransform matrix =  CGAffineTransformMakeRotation(angle*M_PI/180);&#10;        [[hand layer] setAffineTransform:matrix]; //&#23454;&#29616;&#36716;&#21160;&#10;    &#125;];&#10;&#10;&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>anchorPoint点得位置<br><img src="/media/1442161266216.png" alt="Alt text"></p>
+<ul>
+<li><p>根据当前的时间,移动指针</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">- (void) moveHandToLocalTime&#123;&#10;&#9;//&#33719;&#21462;&#24403;&#21069;&#30340;&#26102;&#38388;&#10;    NSCalendar *calendar = [NSCalendar currentCalendar];&#10;    NSInteger comp = (NSCalendarUnitHour | NSCalendarUnitMinute | NSCalendarUnitSecond);&#10;    NSDateComponents *components = [calendar components:comp fromDate:[NSDate date]];&#10;    &#10;    [self moveHand:self.hoursHand toAngle:[components hour] * 360.0f / 24.0f]; &#10;    //24h&#21046;&#24230;,12h&#26059;&#36716;&#19968;&#22280;, x h&#26059;&#36716; (x/2 /12)*360&#10;    [self moveHand:self.minutesHand toAngle:[components minute] * 360.0f / 60.0f]; &#10;    // 60min&#26059;&#36716;&#19968;&#22280;, x min&#26059;&#36716; (x/60)*360&#10;    [self moveHand:self.secondsHand toAngle:[components second] * 360.0f / 60.0f];&#10;    &#10;&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>当view移动到window上时, 触发Timer, 间隔为1s,重复执行<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">void</span>) didMoveToWindow&#123;</span><br><span class="line">    [<span class="built_in">NSTimer</span> scheduledTimerWithTimeInterval:<span class="number">1.0</span></span><br><span class="line">                                     target:<span class="keyword">self</span>                                                                   selector:<span class="keyword">@selector</span>(moveHandToLocalTime)</span><br><span class="line">                                   userInfo:<span class="literal">nil</span></span><br><span class="line">                                    repeats:<span class="literal">YES</span>];</span><br><span class="line">    [<span class="keyword">self</span> oscillatePendulum];</span><br><span class="line">    </span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="对于钟摆的移动,_可分为四个阶段:">对于钟摆的移动, 可分为四个阶段:</h3><p><img src="/media/1442162089697.png" alt="Alt text"></p>
+<blockquote>
+<ol>
+<li>摆向15°减速</li>
+<li>摆向0° 加速</li>
+<li>-摆向15°减速</li>
+<li>摆向0°加速</li>
+</ol>
+</blockquote>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">void</span>)oscillatePendulum</span><br><span class="line">&#123;</span><br><span class="line">    [[self.pendulum layer] setAnchorPoint:CGPointMake(<span class="number">0.5f</span>, <span class="number">0.0f</span>)];</span><br><span class="line">    [[self.pendulum layer] setPosition:CGPointMake(<span class="number">0.0f</span>, <span class="number">0.0f</span>)];</span><br><span class="line">    </span><br><span class="line">    CAKeyframeAnimation *animation = [CAKeyframeAnimation animationWithKeyPath:@<span class="string">"transform.rotation.z"</span>];</span><br><span class="line">    animation.duration = <span class="number">1.5f</span>;</span><br><span class="line">    animation.repeatCount = INT64_MAX;</span><br><span class="line">    animation.values = @[@(<span class="number">0.0f</span> * M_PI / <span class="number">180.0f</span>), @(<span class="number">15.0f</span> * M_PI / <span class="number">180.0f</span>),</span><br><span class="line">                         @(<span class="number">0.0f</span> * M_PI / <span class="number">180.0f</span>), @(-<span class="number">15.0f</span> * M_PI / <span class="number">180.0f</span>),</span><br><span class="line">                         @(<span class="number">0.0f</span> * M_PI / <span class="number">180.0f</span>)];</span><br><span class="line">    </span><br><span class="line">    animation.keyTimes = @[@(<span class="number">0.0f</span>), @(<span class="number">0.26f</span>), @(<span class="number">0.50f</span>), @(<span class="number">0.74f</span>), @(<span class="number">1.0f</span>)];</span><br><span class="line">    animation.timingFunctions = @[</span><br><span class="line">                                  [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut],</span><br><span class="line">                                  [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn],</span><br><span class="line">                                  [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut],</span><br><span class="line">                                  [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn],</span><br><span class="line">                                  ];</span><br><span class="line">    </span><br><span class="line">    [[self.pendulum layer] addAnimation:animation forKey:nil];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h3 id=&quot;目的&quot;&gt;目的&lt;/h3&gt;&lt;blockquote&gt;
+&lt;p&gt;本文实现了:根据当前时间, 旋转时钟的3指针(图片),显示当前时间,实现钟表的时分秒3根指针的移动&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h3 id=&quot;界面&quot;&gt;界面&lt;/h3&gt;&lt;p&gt;&lt;img src=&quot;/media/1442160050001.png&quot; alt=&quot;Alt text&quot;&gt;&lt;/p&gt;
+&lt;h3 id=&quot;物体移动的计算方法&quot;&gt;物体移动的计算方法&lt;/h3&gt;&lt;p&gt;&lt;strong&gt;旋转矩阵M&lt;/strong&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;把物体从A点(x,y)移动到B点(x1,y1)的计算方法如下:&lt;br&gt;矩阵B = 矩阵A &lt;em&gt; 移动矩阵M&lt;br&gt;对于顺时针旋转, M等于&lt;br&gt;&lt;img src=&quot;/media/1442160401385.png&quot; alt=&quot;Alt text&quot;&gt;&lt;br&gt;在ios中,  顺时针旋转的矩阵M无需自己计算, 可由下面的方法得出:&lt;br&gt;`CGAffineTransform matrix = CGAffineTransformMakeRotation(angle&lt;/em&gt;M_PI/180);`&lt;br&gt;即CGAffineTransformMakeRotation输入的参数为要顺时针旋转的弧度,输出为旋转的矩阵M&lt;/p&gt;
+&lt;/blockquote&gt;
+    
+    </summary>
+    
+    
+      <category term="CGAffineTransform" scheme="http://jiangywen.github.io/tags/CGAffineTransform/"/>
+    
+      <category term="Object C" scheme="http://jiangywen.github.io/tags/Object-C/"/>
+    
+      <category term="anchorPoint" scheme="http://jiangywen.github.io/tags/anchorPoint/"/>
+    
+      <category term="iOS入门" scheme="http://jiangywen.github.io/tags/iOS%E5%85%A5%E9%97%A8/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>iOS 保存和读取本地数据</title>
+    <link href="http://jiangywen.github.io/2015/06/07/2015-06-07-ios-saving-loading-local-data/"/>
+    <id>http://jiangywen.github.io/2015/06/07/2015-06-07-ios-saving-loading-local-data/</id>
+    <published>2015-06-06T16:00:00.000Z</published>
+    <updated>2016-08-27T17:29:03.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>本文记录了如何将iOS app中的数据,如图片和实例中的属性保存到本地,应用退出或者切换状态后,能够重新恢复数据</p>
+<h3 id="类要遵循的[protocol]和实现的methods_(id:top)">类要遵循的[protocol]和实现的methods  (id:top)</h3><blockquote>
+<p>要想将一个object中的property保存到本地, 这个object的对应的class应该遵循 NSCoding协议, 并实现其2个methods: </p>
+</blockquote>
+<ul>
+<li>NSCoding protocol</li>
+</ul>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="annotation">@interface</span> <span class="string">BNRItem :</span> NSObject &lt;NSCoding&gt;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>encodeWIthCoder </li>
+</ul>
+<p>将class中的property以key-value的形式进行encode, 并将数据流存储到本地的文件系统中, 其中key设定为property的名称.</p>
+<a id="more"></a>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="typename">void</span>)<span class="string">encodeWithCoder:</span>(NSCoder *)aCoder&#123;</span><br><span class="line">    </span><br><span class="line">    [aCoder <span class="string">encodeObject:</span>self.itemName <span class="string">forKey:</span>@<span class="string">"itemName"</span>];</span><br><span class="line">    [aCoder <span class="string">encodeObject:</span>self.serialNumber <span class="string">forKey:</span>@<span class="string">"serialNumber"</span>];</span><br><span class="line">    [aCoder <span class="string">encodeObject:</span>self.dateCreated <span class="string">forKey:</span>@<span class="string">"dateCreated"</span>];</span><br><span class="line">    [aCoder <span class="string">encodeObject:</span>self.itemKey <span class="string">forKey:</span>@<span class="string">"itemKey"</span>];</span><br><span class="line">    [aCoder <span class="string">encodeInt:</span>self.valueInDollars <span class="string">forKey:</span>@<span class="string">"valueInDollars"</span>];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>initWithCoder </li>
+</ul>
+<p>从encodeWithCoder中的数据中, 恢复数据, 并赋值给各个property,</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">- (id)<span class="string">initWithCoder:</span>(NSCoder *)aDecoder&#123;</span><br><span class="line">    self = [<span class="keyword">super</span> init];</span><br><span class="line">    <span class="keyword">if</span> (self) &#123;</span><br><span class="line">        _itemName = [aDecoder <span class="string">decodeObjectForKey:</span>@<span class="string">"itemName"</span>];</span><br><span class="line">        _serialNumber = [aDecoder <span class="string">decodeObjectForKey:</span>@<span class="string">"serialNumber"</span>];</span><br><span class="line">        _dateCreated = [aDecoder <span class="string">decodeObjectForKey:</span>@<span class="string">"dateCreated"</span>];</span><br><span class="line">        _itemKey = [aDecoder <span class="string">decodeObjectForKey:</span>@<span class="string">"itemKey"</span>];</span><br><span class="line">        _valueInDollars = [aDecoder <span class="string">decodeIntForKey:</span>@<span class="string">"valueInDollars"</span>];</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> self;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="选定保存数据的路径和目录">选定保存数据的路径和目录</h3><p>每一个应用都有其对应的sandbox, 只有本身可以访问,与其他app隔离, sandbox包含的目录有:</p>
+<ul>
+<li><p>application bundle: 只读, NIB和图标等文件</p>
+</li>
+<li><p>Documents/: 存储的文件, 可用iCloud备份;</p>
+</li>
+<li><p>Library/Caches/: 缓存的文件, 不能备份;</p>
+</li>
+<li><p>Library/Preferences/: app的setting等设置</p>
+</li>
+<li><p>tmp/ : 临时文件, 注意其清理</p>
+</li>
+</ul>
+<p>查找Document/的目录代码并指定保存的文件名称:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">- (NSString *) itemArchivePath &#123;</span><br><span class="line">   NSArray *documentDirs =  NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);</span><br><span class="line">    </span><br><span class="line">    NSString * documentDir = [documentDirs firstObject];</span><br><span class="line">    NSString *fileName = @<span class="string">"item.archive"</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span>  [documentDir stringByAppendingPathComponent:fileName];</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="如何开始将数据保存到本地">如何开始将数据保存到本地</h3><p>设定好要保存的property和路径后, 就需要在app进入后台的时候(双击home键), 触发保存事件.</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">void</span>)applicationDidEnterBackground:(UIApplication *)application</span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later. </span></span><br><span class="line">    <span class="comment">// If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.</span></span><br><span class="line">    BOOL success = [[BNRItemStore sharedStore] saveChanges];</span><br><span class="line">    <span class="keyword">if</span> (success) &#123;</span><br><span class="line">        NSLog(@<span class="string">"saved all items"</span>);</span><br><span class="line">    &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">        NSLog(@<span class="string">"Failed: can't sace items data!"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* save changes保存的函数</span><br><span class="line">*  self.privateItems为一个数组, 里面包含了多个item</span><br><span class="line">*/</span> NSKeyedArchiver 会递归的调用数组里每一个item的 encodeWithCoder 方法</span><br><span class="line">- (BOOL) saveChanges&#123;</span><br><span class="line">    NSString * fileName = [self itemArchivePath]; </span><br><span class="line">    <span class="keyword">return</span> [NSKeyedArchiver archiveRootObject:self.privateItems toFile:fileName];</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="如何将数据load到app中">如何将数据load到app中</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">NSString *path = [self itemArchivePath];</span><br><span class="line">_privateItems = [NSKeyedUnarchiver unarchiveObjectWithFile:path];</span><br></pre></td></tr></table></figure>
+<h3 id="对于图片的保存,_可以采用NSData的writeToFile:path">对于图片的保存, 可以采用NSData的writeToFile:path</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 获取图片的保存目录</span></span><br><span class="line">- (NSString *)imagePathForKey:(NSString *)key</span><br><span class="line">&#123;</span><br><span class="line">    NSArray *documentDirectories =</span><br><span class="line">            NSSearchPathForDirectoriesInDomains(NSDocumentDirectory,</span><br><span class="line">                                                NSUserDomainMask,</span><br><span class="line">                                                YES);</span><br><span class="line">    NSString *documentDirectory = [documentDirectories firstObject];</span><br><span class="line">    <span class="keyword">return</span> [documentDirectory stringByAppendingPathComponent:key];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 保存图片到本地</span></span><br><span class="line">NSString *imagePath = [self imagePathForKey:key];</span><br><span class="line"> <span class="comment">// Turn image into JPEG data</span></span><br><span class="line">    NSData *data = UIImageJPEGRepresentation(image, <span class="number">0.5</span>);</span><br><span class="line">    <span class="comment">// Write it to full path</span></span><br><span class="line">    [data writeToFile:imagePath atomically:YES];</span><br><span class="line"></span><br><span class="line"><span class="comment">// 读取本地的图片</span></span><br><span class="line">NSString *imagePath = [self imagePathForKey:key];</span><br><span class="line"> <span class="comment">// Create UIImage object from file</span></span><br><span class="line">  result = [UIImage imageWithContentsOfFile:imagePath];</span><br></pre></td></tr></table></figure>
+<p>返回<a href="#top">顶部</a></p>
+<p>At 15:56 PM</p>
+<p>##参考资料</p>
+<ul>
+<li>iOS Programming The Big Nerd Ranch Guide 4th Edition</li>
+</ul>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;本文记录了如何将iOS app中的数据,如图片和实例中的属性保存到本地,应用退出或者切换状态后,能够重新恢复数据&lt;/p&gt;
+&lt;h3 id=&quot;类要遵循的[protocol]和实现的methods_(id:top)&quot;&gt;类要遵循的[protocol]和实现的methods  (id:top)&lt;/h3&gt;&lt;blockquote&gt;
+&lt;p&gt;要想将一个object中的property保存到本地, 这个object的对应的class应该遵循 NSCoding协议, 并实现其2个methods: &lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;ul&gt;
+&lt;li&gt;NSCoding protocol&lt;/li&gt;
+&lt;/ul&gt;
+&lt;figure class=&quot;highlight groovy&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;annotation&quot;&gt;@interface&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;BNRItem :&lt;/span&gt; NSObject &amp;lt;NSCoding&amp;gt;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;ul&gt;
+&lt;li&gt;encodeWIthCoder &lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;将class中的property以key-value的形式进行encode, 并将数据流存储到本地的文件系统中, 其中key设定为property的名称.&lt;/p&gt;
+    
+    </summary>
+    
+    
+      <category term="NSCoding" scheme="http://jiangywen.github.io/tags/NSCoding/"/>
+    
+      <category term="Object C" scheme="http://jiangywen.github.io/tags/Object-C/"/>
+    
+      <category term="iOS入门" scheme="http://jiangywen.github.io/tags/iOS%E5%85%A5%E9%97%A8/"/>
+    
+      <category term="应用状态" scheme="http://jiangywen.github.io/tags/%E5%BA%94%E7%94%A8%E7%8A%B6%E6%80%81/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>iOS URL请求和JSON的解析</title>
+    <link href="http://jiangywen.github.io/2015/06/02/2015-06-02-ios-url-json/"/>
+    <id>http://jiangywen.github.io/2015/06/02/2015-06-02-ios-url-json/</id>
+    <published>2015-06-01T16:00:00.000Z</published>
+    <updated>2016-08-27T17:28:35.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>本文主要记录如何在iOS中使用webView来查看网页的内容</p>
+<p>##如何请求一个给定的url并处理返回的<a href="id:top" target="_blank" rel="external">数据</a></p>
+<ul>
+<li>将给定的url字符串转化为 NSURL 对象</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">NSString * requestString = @<span class="string">"http://bookapi.bignerdranch.com/courses.json"</span>;</span><br><span class="line">NSURL * url = [NSURL URLWithString:requestString];</span><br></pre></td></tr></table></figure>
+<ul>
+<li>初始化请求 NSURLRequest</li>
+</ul>
+<p>NSURLRequest 包含了请求的各种参数,如http头部,超时时间,缓存策略等.</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">NSString * requestString = @<span class="string">"http://bookapi.bignerdranch.com/courses.json"</span>;</span><br><span class="line">NSURL * url = [NSURL URLWithString:requestString];</span><br><span class="line">NSURLRequest  *req = [NSURLRequest requestWithURL:url];</span><br></pre></td></tr></table></figure>
+<ul>
+<li>将一个请求看做一个任务,一个任务的初始化状态是suspend, 当发送resume消息给任务后,请求任务就开始执行. 其中,一个任务中包含了回调函数(completionHandler),回调函数对返回的数据(Json或者XML等)进行处理.</li>
+</ul>
+<a id="more"></a>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">void</span>) fetchFeed &#123;</span><br><span class="line">    NSString * requestString = @<span class="string">"http://bookapi.bignerdranch.com/courses.json"</span>;</span><br><span class="line">    NSURL * url = [NSURL URLWithString:requestString];</span><br><span class="line">    NSURLRequest  *req = [NSURLRequest requestWithURL:url];</span><br><span class="line">    </span><br><span class="line">    NSURLSessionDataTask * dataTask = [self.session</span><br><span class="line">                                       dataTaskWithRequest:req</span><br><span class="line">                                       completionHandler:</span><br><span class="line">					<span class="comment">// 回调函数 block, 见下一步</span></span><br><span class="line">                                       &#125;];</span><br><span class="line">    [dataTask resume]; <span class="comment">// 请求正式开始</span></span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>对JSON格式数据的解析</li>
+</ul>
+<p>iOS提供了NSJSONSerialization类,对JSON进行解析,解析后的数据类型为字典(NSDictionary). 最终完整的代码为:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">void</span>) fetchFeed &#123;</span><br><span class="line">    NSString * requestString = @<span class="string">"http://bookapi.bignerdranch.com/courses.json"</span>;</span><br><span class="line">    NSURL * url = [NSURL URLWithString:requestString];</span><br><span class="line">    NSURLRequest  *req = [NSURLRequest requestWithURL:url];</span><br><span class="line">    </span><br><span class="line">    NSURLSessionDataTask * dataTask = [self.session</span><br><span class="line">                                       dataTaskWithRequest:req</span><br><span class="line">                                       completionHandler:</span><br><span class="line">					<span class="comment">// 回调函数 block</span></span><br><span class="line">                                       ^(NSData *data, NSURLResponse *response, NSError *error) &#123; </span><br><span class="line">                                           NSDictionary *jsonObject = [NSJSONSerialization JSONObjectWithData:data options:<span class="number">0</span> error:nil];</span><br><span class="line">                                           self.courses = jsonObject[@<span class="string">"courses"</span>];</span><br><span class="line">                                           NSLog(@<span class="string">"%@"</span>,self.courses);</span><br><span class="line">                                       &#125;];</span><br><span class="line">    [dataTask resume];</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>返回<a href="#top">顶部</a></p>
+<p>At 10:04 PM</p>
+<p>##参考资料</p>
+<ul>
+<li>iOS Programming The Big Nerd Ranch Guide 4th Edition</li>
+</ul>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;本文主要记录如何在iOS中使用webView来查看网页的内容&lt;/p&gt;
+&lt;p&gt;##如何请求一个给定的url并处理返回的&lt;a href=&quot;id:top&quot;&gt;数据&lt;/a&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;将给定的url字符串转化为 NSURL 对象&lt;/li&gt;
+&lt;/ul&gt;
+&lt;figure class=&quot;highlight c&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;NSString * requestString = @&lt;span class=&quot;string&quot;&gt;&quot;http://bookapi.bignerdranch.com/courses.json&quot;&lt;/span&gt;;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;NSURL * url = [NSURL URLWithString:requestString];&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;ul&gt;
+&lt;li&gt;初始化请求 NSURLRequest&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;NSURLRequest 包含了请求的各种参数,如http头部,超时时间,缓存策略等.&lt;/p&gt;
+&lt;figure class=&quot;highlight c&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;NSString * requestString = @&lt;span class=&quot;string&quot;&gt;&quot;http://bookapi.bignerdranch.com/courses.json&quot;&lt;/span&gt;;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;NSURL * url = [NSURL URLWithString:requestString];&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;NSURLRequest  *req = [NSURLRequest requestWithURL:url];&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;ul&gt;
+&lt;li&gt;将一个请求看做一个任务,一个任务的初始化状态是suspend, 当发送resume消息给任务后,请求任务就开始执行. 其中,一个任务中包含了回调函数(completionHandler),回调函数对返回的数据(Json或者XML等)进行处理.&lt;/li&gt;
+&lt;/ul&gt;
+    
+    </summary>
+    
+    
+      <category term="Object C" scheme="http://jiangywen.github.io/tags/Object-C/"/>
+    
+      <category term="iOS入门" scheme="http://jiangywen.github.io/tags/iOS%E5%85%A5%E9%97%A8/"/>
+    
+      <category term="webView" scheme="http://jiangywen.github.io/tags/webView/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Shell对输入参数的验证</title>
+    <link href="http://jiangywen.github.io/2014/05/09/2014-05-09-valid-input-with-shell/"/>
+    <id>http://jiangywen.github.io/2014/05/09/2014-05-09-valid-input-with-shell/</id>
+    <published>2014-05-08T16:00:00.000Z</published>
+    <updated>2016-08-27T17:28:26.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>本文实现了对Shell输入参数的验证，包括个数和数据类型。学习如何接收shell函数的返回值以及正则表达式。</p>
+<p>##shell函数的返回值<br>函数的返回值分为2两种：</p>
+<ul>
+<li>函数中的echo的标准输出</li>
+<li>函数中显式的return返回值</li>
+</ul>
+<a id="more"></a>
+<p>举例：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">add</span></span> () &#123;</span><br><span class="line">	result=$[ <span class="variable">$1</span> + <span class="variable">$2</span> ]</span><br><span class="line">	<span class="built_in">return</span> <span class="variable">$result</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="title">add_2</span></span> () &#123;</span><br><span class="line">	result=$[ <span class="variable">$1</span> + <span class="variable">$2</span> ]</span><br><span class="line">	<span class="built_in">echo</span> <span class="variable">$result</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>add函数的返回值，接收方式为</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">add <span class="number">1</span> <span class="number">2</span></span><br><span class="line">result=$?</span><br></pre></td></tr></table></figure>
+<p>即return的返回值，只能在函数执行后，根据$?状态判断。<br>而add_2的接收方式为</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">result=$(add <span class="number">1</span> <span class="number">2</span>)</span><br></pre></td></tr></table></figure>
+<p>即echo的返回值可直接从子语句中接收</p>
+<p>##shell对输入参数的验证<br>本文要实现目的：如果输入参数全为数字，则显示valid;其他全部为invalid。</p>
+<p>思路：先保存输入数据到一个变量，接着对数据进行正则表达式过滤，过滤掉非数字的部分，再与原来的数据对比，一致则说明全部是数据，否则包含了其他字母或者标点。</p>
+<p>实现的代码如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="shebang">#!/bin/bash</span></span><br><span class="line"> <span class="function"><span class="title">valid_input</span></span> ()&#123;</span><br><span class="line">        input=<span class="variable">$1</span></span><br><span class="line">        compressed=$(<span class="built_in">echo</span> <span class="variable">$input</span> | sed <span class="operator">-e</span> <span class="string">"s/[^[:digit:]]//g"</span> );</span><br><span class="line">        <span class="keyword">if</span> [ <span class="string">"<span class="variable">$compressed</span>"</span> != <span class="string">"<span class="variable">$input</span>"</span> ];<span class="keyword">then</span></span><br><span class="line">                <span class="built_in">return</span> <span class="number">1</span></span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">                <span class="built_in">return</span> <span class="number">0</span></span><br><span class="line">        <span class="keyword">fi</span></span><br><span class="line">&#125;</span><br><span class="line">        <span class="built_in">read</span> -p <span class="string">"input your value here&gt;"</span> input</span><br><span class="line">	valid_input <span class="variable">$input</span></span><br><span class="line">        <span class="keyword">if</span>  [ $? <span class="operator">-eq</span> <span class="number">1</span> ];<span class="keyword">then</span></span><br><span class="line">                <span class="built_in">echo</span> <span class="string">"invalid"</span></span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">                <span class="built_in">echo</span> <span class="string">"valid"</span></span><br><span class="line">        <span class="keyword">fi</span></span><br><span class="line">        <span class="built_in">exit</span> <span class="number">0</span></span><br></pre></td></tr></table></figure>
+<p>其中，[:digit:]表示数字，可根据需求换成其他，如[:alnum:]表示数字和字母；[^[:digit:]] 表示否定，即非数字；<br>另外，函数执行是否成功，可以用下面的方法，简写：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">read</span> -p <span class="string">"input your value here&gt;"</span> input</span><br><span class="line">       <span class="keyword">if</span>  ! valid_input <span class="string">"<span class="variable">$input</span>"</span>;<span class="keyword">then</span></span><br><span class="line">               <span class="built_in">echo</span> <span class="string">"invalid"</span></span><br><span class="line">       <span class="keyword">else</span></span><br><span class="line">               <span class="built_in">echo</span> <span class="string">"valid"</span></span><br><span class="line">       <span class="keyword">fi</span></span><br><span class="line">       <span class="built_in">exit</span> <span class="number">0</span></span><br></pre></td></tr></table></figure>
+<p>if fun_name表示，函数成功后（返回0），if为真；否则if为假。<br>if ! fun_name表示，函数不成功（返回不为0），if为真。<br>这和上面的有一点冲突，只需要记住 if认为后面的函数返回为0时，条件才为真。</p>
+<p>##执行结果</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">sh valid_input.sh </span><br><span class="line">input&gt;frank</span><br><span class="line">invalid</span><br><span class="line"></span><br><span class="line">sh valid_input.sh </span><br><span class="line">input&gt;<span class="number">11111</span></span><br><span class="line">valid</span><br><span class="line"></span><br><span class="line">sh valid_input.sh </span><br><span class="line">input&gt;<span class="number">1111</span>frank</span><br><span class="line">invalid</span><br></pre></td></tr></table></figure>
+<p>At 11:00 PM</p>
+<p>##参考资料</p>
+<ul>
+<li>Wicked.Cool.Shell.Scripts</li>
+<li><a href="http://blog.csdn.net/mdx20072419/article/details/9381339" target="_blank" rel="external">http://blog.csdn.net/mdx20072419/article/details/9381339</a></li>
+</ul>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;本文实现了对Shell输入参数的验证，包括个数和数据类型。学习如何接收shell函数的返回值以及正则表达式。&lt;/p&gt;
+&lt;p&gt;##shell函数的返回值&lt;br&gt;函数的返回值分为2两种：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;函数中的echo的标准输出&lt;/li&gt;
+&lt;li&gt;函数中显式的return返回值&lt;/li&gt;
+&lt;/ul&gt;
+    
+    </summary>
+    
+    
+      <category term="Shell" scheme="http://jiangywen.github.io/tags/Shell/"/>
+    
+      <category term="Wicked Cool Shell Scripts" scheme="http://jiangywen.github.io/tags/Wicked-Cool-Shell-Scripts/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Perl实现可变字节码算法 </title>
+    <link href="http://jiangywen.github.io/2014/05/04/2014-05-04-variable-byte-code-with-perl/"/>
+    <id>http://jiangywen.github.io/2014/05/04/2014-05-04-variable-byte-code-with-perl/</id>
+    <published>2014-05-03T16:00:00.000Z</published>
+    <updated>2016-08-27T17:28:19.000Z</updated>
+    
+    <content type="html"><![CDATA[<blockquote>
+<p>最近在阅读《大规模Web服务开发技术》一书，作为练习和鞭策，决定系统地写一写博客，加深理解。本文用Perl实现了可变字节码算法，对递增的整数序列的文本进行了压缩，压缩率能达到59%。</p>
+</blockquote>
+<p>##可变字节码的定义</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">数值	                  <span class="number">32</span>位二进制			    可变字节码</span><br><span class="line"><span class="number">5</span>		<span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000101</span> 	     <span class="number">10000101</span></span><br><span class="line"><span class="number">130</span>		<span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">10000010</span>	  <span class="number">00000001</span> <span class="number">10000010</span></span><br></pre></td></tr></table></figure>
+<p>可变字节码，将整数序列中的冗余的高位0都去掉，其中130的可变字节码为00000001 10000010，前面8位中的1表示1<em>128，后面8位中最高位的1表示，这是最终的一个字节，代表数字的结束。<br>所以130 = 1</em>128 + 2 （最后字节中的10），而 5 = 101（二进制）<br>可以看出，数值越小，可变字节码位数越少。因此对于递增的整数序列[1,2,12,20,39],可以只存储相邻值的差，从而减少了数值的大小。处理后变为[1,1,10,8,19]</p>
+<a id="more"></a>
+<p>##Perl实现的原理</p>
+<p>###测试数据的生成<br>data_gen.pl &gt; data.txt</p>
+<figure class="highlight perl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/perl</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">while</span> (<span class="number">1</span>) &#123;</span><br><span class="line">  <span class="keyword">print</span> <span class="string">"1,2,3,4,5,128,130,258,300,512,568,1024\n"</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>###压缩 </p>
+<ol>
+<li>对输入的数值n，与128比较。</li>
+<li>小于128，则直接用pack函数输出二进制到文件中；</li>
+<li>大于128，则循环，将n%128的结果插入到数组的开头（unshift）；</li>
+<li>最后，在数组的最后一位加上128，表示这是最终的一个字节。<br>并将数组pack成字符（1个4Byte的int，被压缩成了2Byte的二进制），输出到二进制文件中</li>
+</ol>
+<p>encode.pl程序如下：<br>./encode.pl data.txt &gt; data.bin</p>
+<figure class="highlight perl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/perl</span></span><br><span class="line"><span class="keyword">use</span> strict;</span><br><span class="line"><span class="keyword">use</span> warnings;</span><br><span class="line"><span class="keyword">use</span> integer;</span><br><span class="line"></span><br><span class="line"><span class="keyword">while</span>(&lt;&gt;)&#123;</span><br><span class="line">        <span class="keyword">chomp</span>;</span><br><span class="line">        <span class="keyword">my</span> <span class="variable">$pre</span> = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">my</span> <span class="variable">$output</span>;</span><br><span class="line">        <span class="keyword">foreach</span> <span class="keyword">my</span> <span class="variable">$num</span> ( <span class="keyword">split</span> <span class="string">','</span>,<span class="variable">$_</span> )&#123;</span><br><span class="line">                <span class="variable">$output</span> .= encode(<span class="variable">$num</span>-<span class="variable">$pre</span>);</span><br><span class="line">                <span class="variable">$pre</span> = <span class="variable">$num</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">print</span> <span class="variable">$output</span>.<span class="string">"\n"</span>;</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="sub"><span class="keyword">sub</span> encode &#123;</span></span><br><span class="line">	<span class="keyword">my</span> <span class="variable">$num</span> = <span class="keyword">shift</span>;</span><br><span class="line">	<span class="keyword">my</span> <span class="variable">@bytes</span>;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">while</span> (<span class="number">1</span>) &#123;</span><br><span class="line">        <span class="keyword">unshift</span> <span class="variable">@bytes</span>, <span class="variable">$num</span> % <span class="number">128</span>;</span><br><span class="line">        <span class="keyword">last</span> <span class="keyword">if</span> (<span class="variable">$num</span> &lt; <span class="number">128</span>);</span><br><span class="line">        <span class="variable">$num</span> = <span class="variable">$num</span>/<span class="number">128</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="variable">$bytes</span>[-<span class="number">1</span>] += <span class="number">128</span>; <span class="comment">#add 1 sign to the last byte(8 bits)</span></span><br><span class="line">	<span class="keyword">return</span> <span class="keyword">pack</span>(<span class="string">'C*'</span>,<span class="variable">@bytes</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>###解压</p>
+<ol>
+<li>对输入的二进制流进行unpack</li>
+<li>数值 = 高8位*128 + 低8位-128 （减去结束字节的标志）</li>
+<li>整数序列中[a,b,c,d],还原后变成[a,a+b,(a+b)+c,(a+b+c)+d]</li>
+</ol>
+<p>./decode.pl data.bin &gt; data.restore</p>
+<figure class="highlight perl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/perl</span></span><br><span class="line"><span class="keyword">use</span> strict;</span><br><span class="line"><span class="keyword">use</span> warnings;</span><br><span class="line"></span><br><span class="line"><span class="keyword">while</span>(&lt;&gt;)&#123;</span><br><span class="line">        <span class="keyword">chomp</span>;</span><br><span class="line">        <span class="keyword">my</span> <span class="variable">$pre</span> =<span class="number">0</span>;</span><br><span class="line">        <span class="keyword">my</span> <span class="variable">@result</span>;</span><br><span class="line">        <span class="keyword">foreach</span> <span class="keyword">my</span> <span class="variable">$c</span> (decode(<span class="variable">$_</span>)) &#123;</span><br><span class="line">                <span class="keyword">push</span> <span class="variable">@result</span>, <span class="variable">$pre</span>+<span class="variable">$c</span>;</span><br><span class="line">                <span class="variable">$pre</span> += <span class="variable">$c</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">print</span> <span class="keyword">join</span> (<span class="string">","</span> ,<span class="variable">@result</span>) ,<span class="string">"\n"</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="sub"><span class="keyword">sub</span> decode &#123;</span></span><br><span class="line">	<span class="keyword">my</span> <span class="variable">$stream</span> = <span class="keyword">shift</span>;</span><br><span class="line">	<span class="keyword">my</span> <span class="variable">$n</span> = <span class="number">0</span>;</span><br><span class="line">	<span class="keyword">my</span> <span class="variable">@arr</span>;</span><br><span class="line">	<span class="keyword">foreach</span> <span class="keyword">my</span> <span class="variable">$c</span> ( <span class="keyword">unpack</span>(<span class="string">'C*'</span>,<span class="variable">$stream</span>) )&#123;</span><br><span class="line">		<span class="keyword">if</span> (<span class="variable">$c</span> &lt; <span class="number">128</span>)&#123;</span><br><span class="line">			<span class="variable">$n</span> = <span class="number">128</span> * <span class="variable">$n</span> + <span class="variable">$c</span>;		</span><br><span class="line">		&#125;<span class="keyword">else</span>&#123;</span><br><span class="line">			<span class="keyword">push</span> <span class="variable">@arr</span>,<span class="number">128</span>*<span class="variable">$n</span> + (<span class="variable">$c</span>-<span class="number">128</span>);</span><br><span class="line">			<span class="variable">$n</span> = <span class="number">0</span>;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="keyword">wantarray</span>? <span class="variable">@arr</span> : <span class="variable">$arr</span>[<span class="number">0</span>]; <span class="comment">#根据调用的环境，决定返回数组还是标量</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>###压缩的效果图</p>
+<p><img src="/media/file/20140504/process.jpg" alt="setting"></p>
+<p><img src="/media/file/20140504/result.jpg" alt="setting"></p>
+<p>文件已经从399M压缩到了163M，压缩率为(399-163)/399 = 0.59</p>
+<p>At 1:03 AM</p>
+<p>##参考资料</p>
+<ul>
+<li>《大规模Web服务开发技术》</li>
+</ul>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;blockquote&gt;
+&lt;p&gt;最近在阅读《大规模Web服务开发技术》一书，作为练习和鞭策，决定系统地写一写博客，加深理解。本文用Perl实现了可变字节码算法，对递增的整数序列的文本进行了压缩，压缩率能达到59%。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;##可变字节码的定义&lt;/p&gt;
+&lt;figure class=&quot;highlight cpp&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;数值	                  &lt;span class=&quot;number&quot;&gt;32&lt;/span&gt;位二进制			    可变字节码&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;number&quot;&gt;5&lt;/span&gt;		&lt;span class=&quot;number&quot;&gt;00000000&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;00000000&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;00000000&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;00000101&lt;/span&gt; 	     &lt;span class=&quot;number&quot;&gt;10000101&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;number&quot;&gt;130&lt;/span&gt;		&lt;span class=&quot;number&quot;&gt;00000000&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;00000000&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;00000000&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;10000010&lt;/span&gt;	  &lt;span class=&quot;number&quot;&gt;00000001&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;10000010&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;可变字节码，将整数序列中的冗余的高位0都去掉，其中130的可变字节码为00000001 10000010，前面8位中的1表示1&lt;em&gt;128，后面8位中最高位的1表示，这是最终的一个字节，代表数字的结束。&lt;br&gt;所以130 = 1&lt;/em&gt;128 + 2 （最后字节中的10），而 5 = 101（二进制）&lt;br&gt;可以看出，数值越小，可变字节码位数越少。因此对于递增的整数序列[1,2,12,20,39],可以只存储相邻值的差，从而减少了数值的大小。处理后变为[1,1,10,8,19]&lt;/p&gt;
+    
+    </summary>
+    
+    
+      <category term="Perl" scheme="http://jiangywen.github.io/tags/Perl/"/>
+    
+      <category term="Variable Byte Code" scheme="http://jiangywen.github.io/tags/Variable-Byte-Code/"/>
+    
+      <category term="压缩" scheme="http://jiangywen.github.io/tags/%E5%8E%8B%E7%BC%A9/"/>
+    
+      <category term="可变字节码" scheme="http://jiangywen.github.io/tags/%E5%8F%AF%E5%8F%98%E5%AD%97%E8%8A%82%E7%A0%81/"/>
+    
+      <category term="算法" scheme="http://jiangywen.github.io/tags/%E7%AE%97%E6%B3%95/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>ubuntu在vmware下共享windows 8文件夹</title>
+    <link href="http://jiangywen.github.io/2014/03/15/2014-03-15-shared-folders-in-ubuntu-windows8/"/>
+    <id>http://jiangywen.github.io/2014/03/15/2014-03-15-shared-folders-in-ubuntu-windows8/</id>
+    <published>2014-03-14T16:00:00.000Z</published>
+    <updated>2016-08-27T17:28:14.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>以前一直在使用windows+ubuntu双系统，但是总是为了某个软件来回切换重启。所以还是回到了入门linux时用的vmware。<br>那时2个系统共享文件是用的SftpDrive，将Ubuntu的文件系统挂载到windows下。今天要分享的如何将Windows下文件夹<br>共享到Ubuntu，使其在Ubuntu虚拟机内也可以直接使用文件。</p>
+<a id="more"></a>
+<p>环境：</p>
+<ul>
+<li>host:  windows 8.1 64bit</li>
+<li>guest: Ubuntu 13.10 32bit</li>
+<li>tools: vmware 10 Download <a href="http://pan.baidu.com/s/1eQGanOA" target="_blank" rel="external">here</a></li>
+</ul>
+<p>安装好vmware</p>
+<p>安装ubuntu 虚拟机</p>
+<p>安装好后，在vmware左边面板选择 My Computer-&gt;ubuntu-&gt;Settings-&gt;options-&gt;shared folders-&gt;enable-&gt;add。</p>
+<p>点击browser,选择windows下的文件夹，设置如下图所示<br><img src="/media/file/20140315/1.jpg" alt="setting"></p>
+<p>到/mnt/hgfs下查看刚才选择的共享文件夹<br><img src="/media/file/20140315/2.jpg" alt="hgfs"></p>
+<p>为了方便，创建Symbolic link（软链接）到Ubuntu桌面</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ln <span class="operator">-s</span> /home/frank/Desktop/winDesktop /mnt/hgfs/Desktop</span><br><span class="line">ln <span class="operator">-s</span> /home/frank/Desktop/winDownloads /mnt/hgfs/Downloads</span><br></pre></td></tr></table></figure>
+<p>最后效果图：<br><img src="/media/file/20140315/3.jpg" alt="result"></p>
+<p>At 20:37</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;以前一直在使用windows+ubuntu双系统，但是总是为了某个软件来回切换重启。所以还是回到了入门linux时用的vmware。&lt;br&gt;那时2个系统共享文件是用的SftpDrive，将Ubuntu的文件系统挂载到windows下。今天要分享的如何将Windows下文件夹&lt;br&gt;共享到Ubuntu，使其在Ubuntu虚拟机内也可以直接使用文件。&lt;/p&gt;
+    
+    </summary>
+    
+    
+      <category term="tech" scheme="http://jiangywen.github.io/tags/tech/"/>
+    
+      <category term="ubuntu" scheme="http://jiangywen.github.io/tags/ubuntu/"/>
+    
+      <category term="vmware" scheme="http://jiangywen.github.io/tags/vmware/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>从1打印到最大的N位数</title>
+    <link href="http://jiangywen.github.io/2014/03/14/2014-03-14-print-from-one-to-n-bit/"/>
+    <id>http://jiangywen.github.io/2014/03/14/2014-03-14-print-from-one-to-n-bit/</id>
+    <published>2014-03-14T15:10:00.000Z</published>
+    <updated>2016-08-27T17:28:02.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>###Problem: 从1打印到最大的N位数, 当N=3时，即打印1,2,3,4…999</p>
+<p>可以用一个循环，循环999次，依次打印；但是，如果变量定义为int类型时，32位的机子上，最大的unsigned数是2^32 -1, 最大的signed数是 2^31 -1 （更小，有一半为负数），这时，当最大的数超过2^32 -1时，就会溢出。</p>
+<p>解决的办法是，申请一个长度为N+1的字符串，最后一位是结束符’\0’。初始化字符串的每一位都为0；然后循环打印，每次将字符串所代表的数字加1；直到最高位有进位时(999+1, 代表到达最大的N位数)，停止；</p>
+ <a id="more"></a>
+<p>具体程序如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Print1ToMaxOfNDigits</span> <span class="params">( <span class="keyword">int</span> n)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">increament</span> <span class="params">(<span class="keyword">char</span> * num, <span class="keyword">int</span> n)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">PrintNum</span> <span class="params">(<span class="keyword">char</span> * num)</span></span>;</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">      Print1ToMaxOfNDigits(<span class="number">3</span>);</span><br><span class="line">    system(<span class="string">"pause"</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Print1ToMaxOfNDigits</span> <span class="params">( <span class="keyword">int</span> n)</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (n&lt;<span class="number">0</span>)</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    <span class="keyword">char</span> num[n+<span class="number">1</span>];</span><br><span class="line">    <span class="keyword">int</span> index = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (;index &lt; n;index++)</span><br><span class="line">        num[index]=<span class="string">'0'</span>;</span><br><span class="line">    num[n] = <span class="string">'\0'</span>;</span><br><span class="line">     </span><br><span class="line">    <span class="comment">/* 如果最高位，没有进位，继续打印并加1 */</span></span><br><span class="line">    <span class="keyword">while</span> (!increament(num,n))&#123;  </span><br><span class="line">        PrintNum (num);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="comment">/*将字符串所代表的数加1, 如最高位有进位，则返回true，否则false*/</span></span><br><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">increament</span> <span class="params">(<span class="keyword">char</span> * num, <span class="keyword">int</span> n)</span></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> takeOver = <span class="number">0</span>;  <span class="comment">/* 进位标志 */</span></span><br><span class="line">    <span class="keyword">bool</span> overFlow = <span class="literal">false</span>;</span><br><span class="line">    <span class="keyword">int</span> index;</span><br><span class="line">    <span class="keyword">for</span> (index=n-<span class="number">1</span>;index&gt;=<span class="number">0</span>;index--)&#123;</span><br><span class="line">        <span class="keyword">int</span> sum = num[index] - <span class="string">'0'</span> + takeOver;</span><br><span class="line">        <span class="keyword">if</span> (index==n-<span class="number">1</span>)</span><br><span class="line">            sum++;</span><br><span class="line">        <span class="keyword">if</span> (sum&gt;=<span class="number">10</span>)&#123;</span><br><span class="line">            sum -=<span class="number">10</span>;</span><br><span class="line">            takeOver =<span class="number">1</span>;</span><br><span class="line">            num[index]= sum + <span class="string">'0'</span>;</span><br><span class="line">            <span class="keyword">if</span> (index == <span class="number">0</span>)</span><br><span class="line">                overFlow = <span class="literal">true</span>;</span><br><span class="line">        &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">            num[index]= sum + <span class="string">'0'</span>;</span><br><span class="line">            <span class="keyword">break</span>;    <span class="comment">/* 没有进位时，终止本次函数的调用 */</span></span><br><span class="line">        &#125;</span><br><span class="line"> </span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> overFlow;</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="comment">/* 打印时，去掉最前面的0，如009变成9 */</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">PrintNum</span> <span class="params">(<span class="keyword">char</span> * num)</span></span>&#123;</span><br><span class="line">    <span class="keyword">while</span> ( *num!=<span class="string">'\0'</span> &amp;&amp; *num ==<span class="string">'0'</span> )</span><br><span class="line">        num++;</span><br><span class="line">    <span class="built_in">printf</span> (<span class="string">"%s,"</span>,num);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>At 23:10</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;###Problem: 从1打印到最大的N位数, 当N=3时，即打印1,2,3,4…999&lt;/p&gt;
+&lt;p&gt;可以用一个循环，循环999次，依次打印；但是，如果变量定义为int类型时，32位的机子上，最大的unsigned数是2^32 -1, 最大的signed数是 2^31 -1 （更小，有一半为负数），这时，当最大的数超过2^32 -1时，就会溢出。&lt;/p&gt;
+&lt;p&gt;解决的办法是，申请一个长度为N+1的字符串，最后一位是结束符’\0’。初始化字符串的每一位都为0；然后循环打印，每次将字符串所代表的数字加1；直到最高位有进位时(999+1, 代表到达最大的N位数)，停止；&lt;/p&gt;
+    
+    </summary>
+    
+    
+      <category term="C" scheme="http://jiangywen.github.io/tags/C/"/>
+    
+      <category term="tech" scheme="http://jiangywen.github.io/tags/tech/"/>
+    
+      <category term="算法" scheme="http://jiangywen.github.io/tags/%E7%AE%97%E6%B3%95/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>单链表相关问题</title>
+    <link href="http://jiangywen.github.io/2014/03/14/2014-03-14-single-linked-list-problems/"/>
+    <id>http://jiangywen.github.io/2014/03/14/2014-03-14-single-linked-list-problems/</id>
+    <published>2014-03-13T16:00:00.000Z</published>
+    <updated>2016-08-27T17:25:07.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>单链表的常用操作实现:删除、增加、反转、环形…</p>
+<p>下面是对单链表的一些总结：</p>
+<p>定义情况如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="preprocessor">#<span class="keyword">define</span> TRUE <span class="number">1</span></span></span><br><span class="line"><span class="preprocessor">#<span class="keyword">define</span> FALSE <span class="number">0</span></span></span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">int</span> <span class="keyword">bool</span>;</span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span> node &#123;</span><br><span class="line">        <span class="keyword">struct</span> node * next;</span><br><span class="line">        <span class="keyword">int</span> value;</span><br><span class="line">&#125; Node;</span><br></pre></td></tr></table></figure>
+<h1 id="1-_针对一个单链表的常用操作">1. 针对一个单链表的常用操作</h1><p>##（1）给点一个值value，删除链表中等于此值的节点</p>
+<pre><code>先判断头节点的值是否为<span class="built_in">value</span>，是的话，改变头指针，指向下一个节点；
+否则，遍历链表，知道找到一个节点，他的<span class="built_in">next</span>的值为<span class="built_in">value</span>，
+将此节点指向下下个节点，最后删除中间的节点。
+程序如下：
+</code></pre><a id="more"></a>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">removeNode</span> <span class="params">( Node ** head, <span class="keyword">int</span> value)</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> ( head == <span class="literal">NULL</span> || *head == <span class="literal">NULL</span> )</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    Node * deleteNode = <span class="literal">NULL</span>;</span><br><span class="line">    <span class="keyword">if</span> ( (*head)-&gt;value == value)&#123; <span class="comment">/* if *head is the node to be deleted */</span></span><br><span class="line">        deleteNode = *head;</span><br><span class="line">        *head = (*head)-&gt;next;</span><br><span class="line">    &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">        <span class="keyword">while</span> ( (*head)-&gt;next != <span class="literal">NULL</span> &amp;&amp; (*head)-&gt;next-&gt;value != value )&#123;</span><br><span class="line">                (*head) = (*head)-&gt;next;</span><br><span class="line">        &#125;</span><br><span class="line"> </span><br><span class="line">        <span class="keyword">if</span> ( (*head)-&gt;next != <span class="literal">NULL</span> &amp;&amp; (*head)-&gt;next-&gt;value == value)&#123; <span class="comment">/* ensure we 've found the node to be deleted */</span></span><br><span class="line">            deleteNode = (*head)-&gt;next;</span><br><span class="line">            (*head)-&gt;next = (*head)-&gt;next-&gt;next;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> ( deleteNode != <span class="literal">NULL</span> )&#123; <span class="comment">/* free the node and set it to NULL in case of stray pointer */</span></span><br><span class="line">        <span class="built_in">free</span>(deleteNode);</span><br><span class="line">        deleteNode = <span class="literal">NULL</span>;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>##（2）在链表尾部新增一个节点，其值为value：</p>
+<pre><code>先分配空间，初始化新的节点；如果链表为空，则头部指向新节点；
+否则，在尾部直接添加新节点即可；
+程序如下：
+</code></pre><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">addNodeToTail</span> <span class="params">( Node ** head, <span class="keyword">int</span> value)</span></span>&#123;</span><br><span class="line">    Node * newNode = (Node *) <span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(Node));</span><br><span class="line">    newNode-&gt;next = <span class="literal">NULL</span>;</span><br><span class="line">    newNode-&gt;value = value;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">if</span> (*head==<span class="literal">NULL</span>)&#123;</span><br><span class="line">        *head = newNode;</span><br><span class="line">    &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">        <span class="keyword">while</span> ( (*head)-&gt;next != <span class="literal">NULL</span> )</span><br><span class="line">            *head = (*head)-&gt;next;</span><br><span class="line">        (*head)-&gt;next = newNode;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>##（3）打印一个单链表，但是输出的顺序反向：</p>
+<pre><code>可以利用递归，知道最后一个节点（<span class="keyword">next</span>=<span class="literal">NULL</span>）时才打印；
+然后从栈中返回前面调用的函数，实现了反向打印。
+程序如下：
+</code></pre><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">printListReversely</span> <span class="params">( Node * head )</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> ( head == <span class="literal">NULL</span> )</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    <span class="keyword">if</span> ( head-&gt;next != <span class="literal">NULL</span> )</span><br><span class="line">        printListReversely (head-&gt;next);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"%d\t"</span>,head-&gt;next);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>##（4）翻转一个单链表，即把原来的链表反向：</p>
+<p>   只需改变链表中每一个箭头的方向即可；<br>   需要3个变量，一个保存现在的节点，一个保存前一个节点，一个保存下一个节点。<br>   程序如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Node *  <span class="title">reverseLinkList</span> <span class="params">( Node * pHead )</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (pHead==<span class="literal">NULL</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">    Node * pPre =<span class="literal">NULL</span>;</span><br><span class="line">    Node * pCur = pHead;</span><br><span class="line">    Node * pNext = <span class="literal">NULL</span>;</span><br><span class="line">    <span class="keyword">while</span> ( pCur != <span class="literal">NULL</span> )&#123;</span><br><span class="line">        pNext = pCur-&gt;next;</span><br><span class="line">        pCur-&gt;next = pPre;</span><br><span class="line">        pPre = pCur;</span><br><span class="line">        pCur = pNext;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> pCur; <span class="comment">/* pCur is the last node b4; and it's the head of the new node now */</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>##(5) 判断一个链表是否有环</p>
+<p>   如果链表有环，必定出现在尾部；就像去操场前，需要先走一段路，再进入圆形的跑道；<br>   可以设定两个指针，开始都指向head，然后一个指针每次走2步，另外一个每次一步；<br>   如果有环，经过圆形环后，快指针必定会追上慢指针；<br>   如果碰到指针指向NULL了，则没有环。</p>
+<p>   程序如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">isLoopInList</span> <span class="params">(Node * head)</span></span>&#123;</span><br><span class="line">    Node * slow = head;</span><br><span class="line">    Node * fast = head;</span><br><span class="line">    <span class="keyword">while</span> ( fast != <span class="literal">NULL</span> &amp;&amp; fast-&gt;next != <span class="literal">NULL</span> )&#123;</span><br><span class="line">        slow = slow-&gt;next;</span><br><span class="line">        fast = fast-&gt;next-&gt;next;</span><br><span class="line">        <span class="keyword">if</span> ( slow == fast)</span><br><span class="line">            <span class="keyword">return</span> TRUE;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> ( fast==<span class="literal">NULL</span> || fast-&gt;next == <span class="literal">NULL</span> )</span><br><span class="line">        <span class="keyword">return</span> FALSE;</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>##（6）如果一个链表有环，请找出进入环的第一个节点</p>
+<p> 用步骤（5）的方法判断有环时，快慢指针相遇，然后将慢指针重新置为head，<br> 快指针停留在相遇的节点；<br> 这时候，都同时走，每次一步，再次相遇时，必定在进环的第一个节点。<br> （可以按照圆环的路径证明）<br>  程序如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Node * <span class="title">fistNodeOfLoop</span><span class="params">(Node * head)</span></span>&#123;</span><br><span class="line">    Node * slow = head;</span><br><span class="line">    Node * fast = head;</span><br><span class="line">    <span class="keyword">while</span> ( fast != <span class="literal">NULL</span> &amp;&amp; fast-&gt;next != <span class="literal">NULL</span> )&#123;</span><br><span class="line">        slow = slow-&gt;next;</span><br><span class="line">        fast = fast-&gt;next-&gt;next;</span><br><span class="line">        <span class="keyword">if</span> ( slow == fast)</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    slow = head;</span><br><span class="line">    <span class="keyword">while</span> ( slow != fast )&#123;</span><br><span class="line">        slow = slow-&gt;next;</span><br><span class="line">        fast = fast-&gt;next;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> slow;</span><br><span class="line"> </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>##（7） 打印链表的倒数第K个节点</p>
+<p>设定2个指针，先让一个走k-1步，然后一起走，每次一步；<br>当前面的指针走到尾时，后的指针刚好走到倒数第K个节点。<br>程序如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Node * <span class="title">FindLastKNode</span> <span class="params">( Node * head, <span class="keyword">unsigned</span> <span class="keyword">int</span> k )</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> ( head == <span class="literal">NULL</span> || k ==<span class="number">0</span> )</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line"> </span><br><span class="line">    Node * fast = head;</span><br><span class="line">    Node * slow = head;</span><br><span class="line">    <span class="keyword">int</span> i=<span class="number">1</span>;</span><br><span class="line">    <span class="keyword">for</span> (;i&lt;k;i++)&#123;</span><br><span class="line">        <span class="keyword">if</span> (fast-&gt;next!=<span class="literal">NULL</span>)</span><br><span class="line">            fast = fast-&gt;next;</span><br><span class="line">        <span class="keyword">else</span> <span class="comment">/* k might be larger than the length of list */</span></span><br><span class="line">            <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line">    <span class="keyword">while</span> (fast-&gt;next!=<span class="literal">NULL</span>)&#123;</span><br><span class="line">        fast = fast-&gt;next;</span><br><span class="line">        slow = slow-&gt;next;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> slow;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>#2. 以上都是针对一个单链表的操作，下面讨论两个单链表，<br>现在讨论两个单链表的相交情况</p>
+<p>##（1）判断给定的2个单链表是否相交</p>
+<p> 由节点指向的单一性，相交后不会再分开；即相交后的形状如Y，不是X；<br>可以分别遍历2个链表，只需判断最后一个节点是否一致，一致则相交，不一致则不相交；<br>时间复杂度为 O(m+n)</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">HasCommonNodeOf2Lists</span> <span class="params">( Node * p1,Node * p2 )</span></span>&#123;</span><br><span class="line">        <span class="keyword">while</span> ( p1-&gt;next != <span class="literal">NULL</span> )</span><br><span class="line">            p1 = p1-&gt;next;</span><br><span class="line">        <span class="keyword">while</span> ( p2-&gt;next != <span class="literal">NULL</span> )</span><br><span class="line">            p2 = p2-&gt;next;</span><br><span class="line"> </span><br><span class="line">        <span class="keyword">return</span> (p1==p2)? TRUE : FALSE;</span><br><span class="line"> </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>##(2) 如果两个链表相交，找出第一个相交的节点</p>
+<p>两个链表可能有长有短，可以分别遍历2个链表，计算出长度差diff；<br>然后，在长链表上先走diff步，再同时走，直到节点相等时停止，<br>这个节点即为第一个相交的节点。<br>程序如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Node *  <span class="title">firstCommonNodeOf2Lists</span> <span class="params">( Node * head1,Node * head2 )</span></span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (head1==<span class="literal">NULL</span> || head2==<span class="literal">NULL</span>)</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">        <span class="keyword">int</span> len1 = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">int</span> len2 = <span class="number">0</span>;</span><br><span class="line">        Node * p1 = head1;</span><br><span class="line">        Node * p2 = head2;</span><br><span class="line">        <span class="keyword">while</span> ( p1-&gt;next != <span class="literal">NULL</span> )&#123;</span><br><span class="line">             p1 = p1-&gt;next;</span><br><span class="line">             len1++;</span><br><span class="line">        &#125;</span><br><span class="line"> </span><br><span class="line">        <span class="keyword">while</span> ( p2-&gt;next != <span class="literal">NULL</span> )&#123;</span><br><span class="line">             p2 = p2-&gt;next;</span><br><span class="line">             len2++;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">int</span> diff = len1 - len2;</span><br><span class="line">        Node * fast = head1;</span><br><span class="line">        Node * slow = head2;</span><br><span class="line">        <span class="keyword">if</span> ( len1&lt;len2 )</span><br><span class="line">            diff = len2 - len1;</span><br><span class="line">            fast = head2;</span><br><span class="line">            slow = head1;</span><br><span class="line"> </span><br><span class="line">        <span class="keyword">int</span> i = <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">for</span> (;i&lt;=diff;i++)</span><br><span class="line">            fast = fast-&gt;next;</span><br><span class="line"> </span><br><span class="line">        <span class="keyword">while</span> ( fast != slow )&#123;</span><br><span class="line">            fast = fast-&gt;next;</span><br><span class="line">            slow = slow-&gt;next;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> slow;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;单链表的常用操作实现:删除、增加、反转、环形…&lt;/p&gt;
+&lt;p&gt;下面是对单链表的一些总结：&lt;/p&gt;
+&lt;p&gt;定义情况如下：&lt;/p&gt;
+&lt;figure class=&quot;highlight c&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;7&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;preprocessor&quot;&gt;#&lt;span class=&quot;keyword&quot;&gt;define&lt;/span&gt; TRUE &lt;span class=&quot;number&quot;&gt;1&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;preprocessor&quot;&gt;#&lt;span class=&quot;keyword&quot;&gt;define&lt;/span&gt; FALSE &lt;span class=&quot;number&quot;&gt;0&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;typedef&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;bool&lt;/span&gt;;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;typedef&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;struct&lt;/span&gt; node &amp;#123;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        &lt;span class=&quot;keyword&quot;&gt;struct&lt;/span&gt; node * next;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        &lt;span class=&quot;keyword&quot;&gt;int&lt;/span&gt; value;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&amp;#125; Node;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;h1 id=&quot;1-_针对一个单链表的常用操作&quot;&gt;1. 针对一个单链表的常用操作&lt;/h1&gt;&lt;p&gt;##（1）给点一个值value，删除链表中等于此值的节点&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;先判断头节点的值是否为&lt;span class=&quot;built_in&quot;&gt;value&lt;/span&gt;，是的话，改变头指针，指向下一个节点；
+否则，遍历链表，知道找到一个节点，他的&lt;span class=&quot;built_in&quot;&gt;next&lt;/span&gt;的值为&lt;span class=&quot;built_in&quot;&gt;value&lt;/span&gt;，
+将此节点指向下下个节点，最后删除中间的节点。
+程序如下：
+&lt;/code&gt;&lt;/pre&gt;
+    
+    </summary>
+    
+    
+      <category term="tech" scheme="http://jiangywen.github.io/tags/tech/"/>
+    
+      <category term="数据结构" scheme="http://jiangywen.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>终于进入了博客的第三层境界了</title>
+    <link href="http://jiangywen.github.io/2014/03/13/2014-03-13-first-blog/"/>
+    <id>http://jiangywen.github.io/2014/03/13/2014-03-13-first-blog/</id>
+    <published>2014-03-12T16:00:00.000Z</published>
+    <updated>2016-08-27T17:15:19.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>都说博客有三境界：一是使用新浪网易等免费的博客，二是自己买空间和域名搭建Wordpress，最后是来到Github Pages了。</p>
+<p>折腾了两天，衣带渐宽，发现自己设计的细胞还是不够。于是在<a href="http://lhzhang.com" target="_blank" rel="external">rusty shutter</a>的基础上，修改了下代码，加入了国内的多说评论模块和Google Analytics统计信息，终于可以投入使用了。已经在Sina SAE搭建的<a href="http://yewen.sinaapp.com" target="_blank" rel="external">博客</a>，就废弃吧。</p>
+<p>众里寻他千百度，毕业后期待人生下个美好的阶段，将点滴记录于此。</p>
+<p>At 1:04 a.m.</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;都说博客有三境界：一是使用新浪网易等免费的博客，二是自己买空间和域名搭建Wordpress，最后是来到Github Pages了。&lt;/p&gt;
+&lt;p&gt;折腾了两天，衣带渐宽，发现自己设计的细胞还是不够。于是在&lt;a href=&quot;http://lhzhang.com&quot; target=
+    
+    </summary>
+    
+    
+      <category term="github" scheme="http://jiangywen.github.io/tags/github/"/>
+    
+      <category term="life" scheme="http://jiangywen.github.io/tags/life/"/>
+    
+      <category term="pages" scheme="http://jiangywen.github.io/tags/pages/"/>
+    
+  </entry>
+  
+</feed>
