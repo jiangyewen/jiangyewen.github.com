@@ -4,9 +4,9 @@
   
   <link href="/atom.xml" rel="self"/>
   
-  <link href="http://jiangywen.github.io/"/>
+  <link href="http://jiangyewen.github.io/"/>
   <updated>2016-08-27T17:24:31.000Z</updated>
-  <id>http://jiangywen.github.io/</id>
+  <id>http://jiangyewen.github.io/</id>
   
   <author>
     <name>蒋业文</name>
@@ -17,8 +17,8 @@
   
   <entry>
     <title>iOS通讯录联系人字母索引的实现</title>
-    <link href="http://jiangywen.github.io/2015/11/14/iOS%E9%80%9A%E8%AE%AF%E5%BD%95%E8%81%94%E7%B3%BB%E4%BA%BA%E5%AD%97%E6%AF%8D%E7%B4%A2%E5%BC%95%E7%9A%84%E5%AE%9E%E7%8E%B0/"/>
-    <id>http://jiangywen.github.io/2015/11/14/iOS通讯录联系人字母索引的实现/</id>
+    <link href="http://jiangyewen.github.io/2015/11/14/iOS%E9%80%9A%E8%AE%AF%E5%BD%95%E8%81%94%E7%B3%BB%E4%BA%BA%E5%AD%97%E6%AF%8D%E7%B4%A2%E5%BC%95%E7%9A%84%E5%AE%9E%E7%8E%B0/"/>
+    <id>http://jiangyewen.github.io/2015/11/14/iOS通讯录联系人字母索引的实现/</id>
     <published>2015-11-13T16:00:00.000Z</published>
     <updated>2016-08-27T17:24:31.000Z</updated>
     
@@ -59,20 +59,20 @@
     </summary>
     
     
-      <category term="UILocalizedIndexedCollation" scheme="http://jiangywen.github.io/tags/UILocalizedIndexedCollation/"/>
+      <category term="UILocalizedIndexedCollation" scheme="http://jiangyewen.github.io/tags/UILocalizedIndexedCollation/"/>
     
-      <category term="currentCollation" scheme="http://jiangywen.github.io/tags/currentCollation/"/>
+      <category term="currentCollation" scheme="http://jiangyewen.github.io/tags/currentCollation/"/>
     
-      <category term="iOS入门" scheme="http://jiangywen.github.io/tags/iOS%E5%85%A5%E9%97%A8/"/>
+      <category term="iOS入门" scheme="http://jiangyewen.github.io/tags/iOS%E5%85%A5%E9%97%A8/"/>
     
-      <category term="tableView" scheme="http://jiangywen.github.io/tags/tableView/"/>
+      <category term="tableView" scheme="http://jiangyewen.github.io/tags/tableView/"/>
     
   </entry>
   
   <entry>
     <title>开源中国iOS客户端架构图</title>
-    <link href="http://jiangywen.github.io/2015/10/21/%E5%AE%A2%E6%88%B7%E7%AB%AF%E5%B1%95%E7%A4%BA/"/>
-    <id>http://jiangywen.github.io/2015/10/21/客户端展示/</id>
+    <link href="http://jiangyewen.github.io/2015/10/21/%E5%AE%A2%E6%88%B7%E7%AB%AF%E5%B1%95%E7%A4%BA/"/>
+    <id>http://jiangyewen.github.io/2015/10/21/客户端展示/</id>
     <published>2015-10-20T16:00:00.000Z</published>
     <updated>2016-08-27T17:23:41.000Z</updated>
     
@@ -92,20 +92,20 @@
     </summary>
     
     
-      <category term="OSC" scheme="http://jiangywen.github.io/tags/OSC/"/>
+      <category term="OSC" scheme="http://jiangyewen.github.io/tags/OSC/"/>
     
-      <category term="Object C" scheme="http://jiangywen.github.io/tags/Object-C/"/>
+      <category term="Object C" scheme="http://jiangyewen.github.io/tags/Object-C/"/>
     
-      <category term="iOS入门" scheme="http://jiangywen.github.io/tags/iOS%E5%85%A5%E9%97%A8/"/>
+      <category term="iOS入门" scheme="http://jiangyewen.github.io/tags/iOS%E5%85%A5%E9%97%A8/"/>
     
-      <category term="开源中国客户端" scheme="http://jiangywen.github.io/tags/%E5%BC%80%E6%BA%90%E4%B8%AD%E5%9B%BD%E5%AE%A2%E6%88%B7%E7%AB%AF/"/>
+      <category term="开源中国客户端" scheme="http://jiangyewen.github.io/tags/%E5%BC%80%E6%BA%90%E4%B8%AD%E5%9B%BD%E5%AE%A2%E6%88%B7%E7%AB%AF/"/>
     
   </entry>
   
   <entry>
     <title>iOS消息推送</title>
-    <link href="http://jiangywen.github.io/2015/10/01/iOS%E6%B6%88%E6%81%AF%E6%8E%A8%E9%80%81/"/>
-    <id>http://jiangywen.github.io/2015/10/01/iOS消息推送/</id>
+    <link href="http://jiangyewen.github.io/2015/10/01/iOS%E6%B6%88%E6%81%AF%E6%8E%A8%E9%80%81/"/>
+    <id>http://jiangyewen.github.io/2015/10/01/iOS消息推送/</id>
     <published>2015-09-30T16:00:00.000Z</published>
     <updated>2016-08-27T17:26:43.000Z</updated>
     
@@ -160,18 +160,18 @@
     </summary>
     
     
-      <category term="LocationNotification" scheme="http://jiangywen.github.io/tags/LocationNotification/"/>
+      <category term="LocationNotification" scheme="http://jiangyewen.github.io/tags/LocationNotification/"/>
     
-      <category term="RemoteNotification" scheme="http://jiangywen.github.io/tags/RemoteNotification/"/>
+      <category term="RemoteNotification" scheme="http://jiangyewen.github.io/tags/RemoteNotification/"/>
     
-      <category term="iOS入门" scheme="http://jiangywen.github.io/tags/iOS%E5%85%A5%E9%97%A8/"/>
+      <category term="iOS入门" scheme="http://jiangyewen.github.io/tags/iOS%E5%85%A5%E9%97%A8/"/>
     
   </entry>
   
   <entry>
     <title>iOS图片的旋转动画效果</title>
-    <link href="http://jiangywen.github.io/2015/09/14/ios%20%E5%9B%BE%E7%89%87%E7%9A%84%E6%97%8B%E8%BD%AC%E5%8A%A8%E7%94%BB%E6%95%88%E6%9E%9C/"/>
-    <id>http://jiangywen.github.io/2015/09/14/ios 图片的旋转动画效果/</id>
+    <link href="http://jiangyewen.github.io/2015/09/14/ios%20%E5%9B%BE%E7%89%87%E7%9A%84%E6%97%8B%E8%BD%AC%E5%8A%A8%E7%94%BB%E6%95%88%E6%9E%9C/"/>
+    <id>http://jiangyewen.github.io/2015/09/14/ios 图片的旋转动画效果/</id>
     <published>2015-09-13T16:00:00.000Z</published>
     <updated>2016-08-27T17:27:51.000Z</updated>
     
@@ -228,20 +228,20 @@
     </summary>
     
     
-      <category term="CGAffineTransform" scheme="http://jiangywen.github.io/tags/CGAffineTransform/"/>
+      <category term="CGAffineTransform" scheme="http://jiangyewen.github.io/tags/CGAffineTransform/"/>
     
-      <category term="Object C" scheme="http://jiangywen.github.io/tags/Object-C/"/>
+      <category term="Object C" scheme="http://jiangyewen.github.io/tags/Object-C/"/>
     
-      <category term="anchorPoint" scheme="http://jiangywen.github.io/tags/anchorPoint/"/>
+      <category term="anchorPoint" scheme="http://jiangyewen.github.io/tags/anchorPoint/"/>
     
-      <category term="iOS入门" scheme="http://jiangywen.github.io/tags/iOS%E5%85%A5%E9%97%A8/"/>
+      <category term="iOS入门" scheme="http://jiangyewen.github.io/tags/iOS%E5%85%A5%E9%97%A8/"/>
     
   </entry>
   
   <entry>
     <title>iOS 保存和读取本地数据</title>
-    <link href="http://jiangywen.github.io/2015/06/07/2015-06-07-ios-saving-loading-local-data/"/>
-    <id>http://jiangywen.github.io/2015/06/07/2015-06-07-ios-saving-loading-local-data/</id>
+    <link href="http://jiangyewen.github.io/2015/06/07/2015-06-07-ios-saving-loading-local-data/"/>
+    <id>http://jiangyewen.github.io/2015/06/07/2015-06-07-ios-saving-loading-local-data/</id>
     <published>2015-06-06T16:00:00.000Z</published>
     <updated>2016-08-27T17:29:03.000Z</updated>
     
@@ -309,20 +309,20 @@
     </summary>
     
     
-      <category term="NSCoding" scheme="http://jiangywen.github.io/tags/NSCoding/"/>
+      <category term="NSCoding" scheme="http://jiangyewen.github.io/tags/NSCoding/"/>
     
-      <category term="Object C" scheme="http://jiangywen.github.io/tags/Object-C/"/>
+      <category term="Object C" scheme="http://jiangyewen.github.io/tags/Object-C/"/>
     
-      <category term="iOS入门" scheme="http://jiangywen.github.io/tags/iOS%E5%85%A5%E9%97%A8/"/>
+      <category term="iOS入门" scheme="http://jiangyewen.github.io/tags/iOS%E5%85%A5%E9%97%A8/"/>
     
-      <category term="应用状态" scheme="http://jiangywen.github.io/tags/%E5%BA%94%E7%94%A8%E7%8A%B6%E6%80%81/"/>
+      <category term="应用状态" scheme="http://jiangyewen.github.io/tags/%E5%BA%94%E7%94%A8%E7%8A%B6%E6%80%81/"/>
     
   </entry>
   
   <entry>
     <title>iOS URL请求和JSON的解析</title>
-    <link href="http://jiangywen.github.io/2015/06/02/2015-06-02-ios-url-json/"/>
-    <id>http://jiangywen.github.io/2015/06/02/2015-06-02-ios-url-json/</id>
+    <link href="http://jiangyewen.github.io/2015/06/02/2015-06-02-ios-url-json/"/>
+    <id>http://jiangyewen.github.io/2015/06/02/2015-06-02-ios-url-json/</id>
     <published>2015-06-01T16:00:00.000Z</published>
     <updated>2016-08-27T17:28:35.000Z</updated>
     
@@ -375,18 +375,18 @@
     </summary>
     
     
-      <category term="Object C" scheme="http://jiangywen.github.io/tags/Object-C/"/>
+      <category term="Object C" scheme="http://jiangyewen.github.io/tags/Object-C/"/>
     
-      <category term="iOS入门" scheme="http://jiangywen.github.io/tags/iOS%E5%85%A5%E9%97%A8/"/>
+      <category term="iOS入门" scheme="http://jiangyewen.github.io/tags/iOS%E5%85%A5%E9%97%A8/"/>
     
-      <category term="webView" scheme="http://jiangywen.github.io/tags/webView/"/>
+      <category term="webView" scheme="http://jiangyewen.github.io/tags/webView/"/>
     
   </entry>
   
   <entry>
     <title>Shell对输入参数的验证</title>
-    <link href="http://jiangywen.github.io/2014/05/09/2014-05-09-valid-input-with-shell/"/>
-    <id>http://jiangywen.github.io/2014/05/09/2014-05-09-valid-input-with-shell/</id>
+    <link href="http://jiangyewen.github.io/2014/05/09/2014-05-09-valid-input-with-shell/"/>
+    <id>http://jiangyewen.github.io/2014/05/09/2014-05-09-valid-input-with-shell/</id>
     <published>2014-05-08T16:00:00.000Z</published>
     <updated>2016-08-27T17:28:26.000Z</updated>
     
@@ -433,16 +433,16 @@
     </summary>
     
     
-      <category term="Shell" scheme="http://jiangywen.github.io/tags/Shell/"/>
+      <category term="Shell" scheme="http://jiangyewen.github.io/tags/Shell/"/>
     
-      <category term="Wicked Cool Shell Scripts" scheme="http://jiangywen.github.io/tags/Wicked-Cool-Shell-Scripts/"/>
+      <category term="Wicked Cool Shell Scripts" scheme="http://jiangyewen.github.io/tags/Wicked-Cool-Shell-Scripts/"/>
     
   </entry>
   
   <entry>
     <title>Perl实现可变字节码算法 </title>
-    <link href="http://jiangywen.github.io/2014/05/04/2014-05-04-variable-byte-code-with-perl/"/>
-    <id>http://jiangywen.github.io/2014/05/04/2014-05-04-variable-byte-code-with-perl/</id>
+    <link href="http://jiangyewen.github.io/2014/05/04/2014-05-04-variable-byte-code-with-perl/"/>
+    <id>http://jiangyewen.github.io/2014/05/04/2014-05-04-variable-byte-code-with-perl/</id>
     <published>2014-05-03T16:00:00.000Z</published>
     <updated>2016-08-27T17:28:19.000Z</updated>
     
@@ -496,22 +496,22 @@
     </summary>
     
     
-      <category term="Perl" scheme="http://jiangywen.github.io/tags/Perl/"/>
+      <category term="Perl" scheme="http://jiangyewen.github.io/tags/Perl/"/>
     
-      <category term="Variable Byte Code" scheme="http://jiangywen.github.io/tags/Variable-Byte-Code/"/>
+      <category term="Variable Byte Code" scheme="http://jiangyewen.github.io/tags/Variable-Byte-Code/"/>
     
-      <category term="压缩" scheme="http://jiangywen.github.io/tags/%E5%8E%8B%E7%BC%A9/"/>
+      <category term="压缩" scheme="http://jiangyewen.github.io/tags/%E5%8E%8B%E7%BC%A9/"/>
     
-      <category term="可变字节码" scheme="http://jiangywen.github.io/tags/%E5%8F%AF%E5%8F%98%E5%AD%97%E8%8A%82%E7%A0%81/"/>
+      <category term="可变字节码" scheme="http://jiangyewen.github.io/tags/%E5%8F%AF%E5%8F%98%E5%AD%97%E8%8A%82%E7%A0%81/"/>
     
-      <category term="算法" scheme="http://jiangywen.github.io/tags/%E7%AE%97%E6%B3%95/"/>
+      <category term="算法" scheme="http://jiangyewen.github.io/tags/%E7%AE%97%E6%B3%95/"/>
     
   </entry>
   
   <entry>
     <title>ubuntu在vmware下共享windows 8文件夹</title>
-    <link href="http://jiangywen.github.io/2014/03/15/2014-03-15-shared-folders-in-ubuntu-windows8/"/>
-    <id>http://jiangywen.github.io/2014/03/15/2014-03-15-shared-folders-in-ubuntu-windows8/</id>
+    <link href="http://jiangyewen.github.io/2014/03/15/2014-03-15-shared-folders-in-ubuntu-windows8/"/>
+    <id>http://jiangyewen.github.io/2014/03/15/2014-03-15-shared-folders-in-ubuntu-windows8/</id>
     <published>2014-03-14T16:00:00.000Z</published>
     <updated>2016-08-27T17:28:14.000Z</updated>
     
@@ -541,18 +541,18 @@
     </summary>
     
     
-      <category term="tech" scheme="http://jiangywen.github.io/tags/tech/"/>
+      <category term="tech" scheme="http://jiangyewen.github.io/tags/tech/"/>
     
-      <category term="ubuntu" scheme="http://jiangywen.github.io/tags/ubuntu/"/>
+      <category term="ubuntu" scheme="http://jiangyewen.github.io/tags/ubuntu/"/>
     
-      <category term="vmware" scheme="http://jiangywen.github.io/tags/vmware/"/>
+      <category term="vmware" scheme="http://jiangyewen.github.io/tags/vmware/"/>
     
   </entry>
   
   <entry>
     <title>从1打印到最大的N位数</title>
-    <link href="http://jiangywen.github.io/2014/03/14/2014-03-14-print-from-one-to-n-bit/"/>
-    <id>http://jiangywen.github.io/2014/03/14/2014-03-14-print-from-one-to-n-bit/</id>
+    <link href="http://jiangyewen.github.io/2014/03/14/2014-03-14-print-from-one-to-n-bit/"/>
+    <id>http://jiangyewen.github.io/2014/03/14/2014-03-14-print-from-one-to-n-bit/</id>
     <published>2014-03-14T15:10:00.000Z</published>
     <updated>2016-08-27T17:28:02.000Z</updated>
     
@@ -574,18 +574,18 @@
     </summary>
     
     
-      <category term="C" scheme="http://jiangywen.github.io/tags/C/"/>
+      <category term="C" scheme="http://jiangyewen.github.io/tags/C/"/>
     
-      <category term="tech" scheme="http://jiangywen.github.io/tags/tech/"/>
+      <category term="tech" scheme="http://jiangyewen.github.io/tags/tech/"/>
     
-      <category term="算法" scheme="http://jiangywen.github.io/tags/%E7%AE%97%E6%B3%95/"/>
+      <category term="算法" scheme="http://jiangyewen.github.io/tags/%E7%AE%97%E6%B3%95/"/>
     
   </entry>
   
   <entry>
     <title>单链表相关问题</title>
-    <link href="http://jiangywen.github.io/2014/03/14/2014-03-14-single-linked-list-problems/"/>
-    <id>http://jiangywen.github.io/2014/03/14/2014-03-14-single-linked-list-problems/</id>
+    <link href="http://jiangyewen.github.io/2014/03/14/2014-03-14-single-linked-list-problems/"/>
+    <id>http://jiangyewen.github.io/2014/03/14/2014-03-14-single-linked-list-problems/</id>
     <published>2014-03-13T16:00:00.000Z</published>
     <updated>2016-08-27T17:25:07.000Z</updated>
     
@@ -648,16 +648,16 @@
     </summary>
     
     
-      <category term="tech" scheme="http://jiangywen.github.io/tags/tech/"/>
+      <category term="tech" scheme="http://jiangyewen.github.io/tags/tech/"/>
     
-      <category term="数据结构" scheme="http://jiangywen.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/"/>
+      <category term="数据结构" scheme="http://jiangyewen.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/"/>
     
   </entry>
   
   <entry>
     <title>终于进入了博客的第三层境界了</title>
-    <link href="http://jiangywen.github.io/2014/03/13/2014-03-13-first-blog/"/>
-    <id>http://jiangywen.github.io/2014/03/13/2014-03-13-first-blog/</id>
+    <link href="http://jiangyewen.github.io/2014/03/13/2014-03-13-first-blog/"/>
+    <id>http://jiangyewen.github.io/2014/03/13/2014-03-13-first-blog/</id>
     <published>2014-03-12T16:00:00.000Z</published>
     <updated>2016-08-27T17:15:19.000Z</updated>
     
@@ -675,11 +675,11 @@
     </summary>
     
     
-      <category term="github" scheme="http://jiangywen.github.io/tags/github/"/>
+      <category term="github" scheme="http://jiangyewen.github.io/tags/github/"/>
     
-      <category term="life" scheme="http://jiangywen.github.io/tags/life/"/>
+      <category term="life" scheme="http://jiangyewen.github.io/tags/life/"/>
     
-      <category term="pages" scheme="http://jiangywen.github.io/tags/pages/"/>
+      <category term="pages" scheme="http://jiangyewen.github.io/tags/pages/"/>
     
   </entry>
   

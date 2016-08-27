@@ -5,7 +5,7 @@
     
     <entry>
       <title><![CDATA[iOS通讯录联系人字母索引的实现]]></title>
-      <url>http://jiangywen.github.io/2015/11/14/iOS%E9%80%9A%E8%AE%AF%E5%BD%95%E8%81%94%E7%B3%BB%E4%BA%BA%E5%AD%97%E6%AF%8D%E7%B4%A2%E5%BC%95%E7%9A%84%E5%AE%9E%E7%8E%B0/</url>
+      <url>http://jiangyewen.github.io/2015/11/14/iOS%E9%80%9A%E8%AE%AF%E5%BD%95%E8%81%94%E7%B3%BB%E4%BA%BA%E5%AD%97%E6%AF%8D%E7%B4%A2%E5%BC%95%E7%9A%84%E5%AE%9E%E7%8E%B0/</url>
       <content type="html"><![CDATA[<h3 id="Demo展示">Demo展示</h3><ul>
 <li><p>图片展示tableViewController的每一个section的title, 右方是字母索引列表; iOS会根据不同的语言,字母也相应改变. 比如,日语就包含了平假名. 中文和英文默认都是A-Z和#.</p>
 </li>
@@ -36,7 +36,7 @@
     
     <entry>
       <title><![CDATA[开源中国iOS客户端架构图]]></title>
-      <url>http://jiangywen.github.io/2015/10/21/%E5%AE%A2%E6%88%B7%E7%AB%AF%E5%B1%95%E7%A4%BA/</url>
+      <url>http://jiangyewen.github.io/2015/10/21/%E5%AE%A2%E6%88%B7%E7%AB%AF%E5%B1%95%E7%A4%BA/</url>
       <content type="html"><![CDATA[<p>本文实现了:根据根据开源中国网站的开源iOS客户端源码, 整理成图形,便于分块研究源码.<br><a id="more"></a></p>
 <h3 id="客户端展示">客户端展示</h3><blockquote>
 <p>开源中国的iOS客户端是开源的,可以在appStore下载. 其源码可以到开源中国自建的Gitlab上<a href="http://git.oschina.net/oschina/iphone-app" target="_blank" rel="external">下载</a></p>
@@ -49,7 +49,7 @@
     
     <entry>
       <title><![CDATA[iOS消息推送]]></title>
-      <url>http://jiangywen.github.io/2015/10/01/iOS%E6%B6%88%E6%81%AF%E6%8E%A8%E9%80%81/</url>
+      <url>http://jiangyewen.github.io/2015/10/01/iOS%E6%B6%88%E6%81%AF%E6%8E%A8%E9%80%81/</url>
       <content type="html"><![CDATA[<h3 id="推送的分类">推送的分类</h3><p>iOS的推送分为2种:</p>
 <ul>
 <li><p>远程服务器推送-<strong>RemoteNotification</strong></p>
@@ -85,7 +85,7 @@
     
     <entry>
       <title><![CDATA[iOS图片的旋转动画效果]]></title>
-      <url>http://jiangywen.github.io/2015/09/14/ios%20%E5%9B%BE%E7%89%87%E7%9A%84%E6%97%8B%E8%BD%AC%E5%8A%A8%E7%94%BB%E6%95%88%E6%9E%9C/</url>
+      <url>http://jiangyewen.github.io/2015/09/14/ios%20%E5%9B%BE%E7%89%87%E7%9A%84%E6%97%8B%E8%BD%AC%E5%8A%A8%E7%94%BB%E6%95%88%E6%9E%9C/</url>
       <content type="html"><![CDATA[<h3 id="目的">目的</h3><blockquote>
 <p>本文实现了:根据当前时间, 旋转时钟的3指针(图片),显示当前时间,实现钟表的时分秒3根指针的移动</p>
 </blockquote>
@@ -128,7 +128,7 @@
     
     <entry>
       <title><![CDATA[iOS 保存和读取本地数据]]></title>
-      <url>http://jiangywen.github.io/2015/06/07/2015-06-07-ios-saving-loading-local-data/</url>
+      <url>http://jiangyewen.github.io/2015/06/07/2015-06-07-ios-saving-loading-local-data/</url>
       <content type="html"><![CDATA[<p>本文记录了如何将iOS app中的数据,如图片和实例中的属性保存到本地,应用退出或者切换状态后,能够重新恢复数据</p>
 <h3 id="类要遵循的[protocol]和实现的methods_(id:top)">类要遵循的[protocol]和实现的methods  (id:top)</h3><blockquote>
 <p>要想将一个object中的property保存到本地, 这个object的对应的class应该遵循 NSCoding协议, 并实现其2个methods: </p>
@@ -178,7 +178,7 @@
     
     <entry>
       <title><![CDATA[iOS URL请求和JSON的解析]]></title>
-      <url>http://jiangywen.github.io/2015/06/02/2015-06-02-ios-url-json/</url>
+      <url>http://jiangyewen.github.io/2015/06/02/2015-06-02-ios-url-json/</url>
       <content type="html"><![CDATA[<p>本文主要记录如何在iOS中使用webView来查看网页的内容</p>
 <p>##如何请求一个给定的url并处理返回的<a href="id:top" target="_blank" rel="external">数据</a></p>
 <ul>
@@ -211,7 +211,7 @@
     
     <entry>
       <title><![CDATA[Shell对输入参数的验证]]></title>
-      <url>http://jiangywen.github.io/2014/05/09/2014-05-09-valid-input-with-shell/</url>
+      <url>http://jiangyewen.github.io/2014/05/09/2014-05-09-valid-input-with-shell/</url>
       <content type="html"><![CDATA[<p>本文实现了对Shell输入参数的验证，包括个数和数据类型。学习如何接收shell函数的返回值以及正则表达式。</p>
 <p>##shell函数的返回值<br>函数的返回值分为2两种：</p>
 <ul>
@@ -246,7 +246,7 @@
     
     <entry>
       <title><![CDATA[Perl实现可变字节码算法 ]]></title>
-      <url>http://jiangywen.github.io/2014/05/04/2014-05-04-variable-byte-code-with-perl/</url>
+      <url>http://jiangyewen.github.io/2014/05/04/2014-05-04-variable-byte-code-with-perl/</url>
       <content type="html"><![CDATA[<blockquote>
 <p>最近在阅读《大规模Web服务开发技术》一书，作为练习和鞭策，决定系统地写一写博客，加深理解。本文用Perl实现了可变字节码算法，对递增的整数序列的文本进行了压缩，压缩率能达到59%。</p>
 </blockquote>
@@ -288,7 +288,7 @@
     
     <entry>
       <title><![CDATA[ubuntu在vmware下共享windows 8文件夹]]></title>
-      <url>http://jiangywen.github.io/2014/03/15/2014-03-15-shared-folders-in-ubuntu-windows8/</url>
+      <url>http://jiangyewen.github.io/2014/03/15/2014-03-15-shared-folders-in-ubuntu-windows8/</url>
       <content type="html"><![CDATA[<p>以前一直在使用windows+ubuntu双系统，但是总是为了某个软件来回切换重启。所以还是回到了入门linux时用的vmware。<br>那时2个系统共享文件是用的SftpDrive，将Ubuntu的文件系统挂载到windows下。今天要分享的如何将Windows下文件夹<br>共享到Ubuntu，使其在Ubuntu虚拟机内也可以直接使用文件。</p>
 <a id="more"></a>
 <p>环境：</p>
@@ -311,7 +311,7 @@
     
     <entry>
       <title><![CDATA[从1打印到最大的N位数]]></title>
-      <url>http://jiangywen.github.io/2014/03/14/2014-03-14-print-from-one-to-n-bit/</url>
+      <url>http://jiangyewen.github.io/2014/03/14/2014-03-14-print-from-one-to-n-bit/</url>
       <content type="html"><![CDATA[<p>###Problem: 从1打印到最大的N位数, 当N=3时，即打印1,2,3,4…999</p>
 <p>可以用一个循环，循环999次，依次打印；但是，如果变量定义为int类型时，32位的机子上，最大的unsigned数是2^32 -1, 最大的signed数是 2^31 -1 （更小，有一半为负数），这时，当最大的数超过2^32 -1时，就会溢出。</p>
 <p>解决的办法是，申请一个长度为N+1的字符串，最后一位是结束符’\0’。初始化字符串的每一位都为0；然后循环打印，每次将字符串所代表的数字加1；直到最高位有进位时(999+1, 代表到达最大的N位数)，停止；</p>
@@ -324,7 +324,7 @@
     
     <entry>
       <title><![CDATA[单链表相关问题]]></title>
-      <url>http://jiangywen.github.io/2014/03/14/2014-03-14-single-linked-list-problems/</url>
+      <url>http://jiangyewen.github.io/2014/03/14/2014-03-14-single-linked-list-problems/</url>
       <content type="html"><![CDATA[<p>单链表的常用操作实现:删除、增加、反转、环形…</p>
 <p>下面是对单链表的一些总结：</p>
 <p>定义情况如下：</p>
@@ -371,7 +371,7 @@
     
     <entry>
       <title><![CDATA[终于进入了博客的第三层境界了]]></title>
-      <url>http://jiangywen.github.io/2014/03/13/2014-03-13-first-blog/</url>
+      <url>http://jiangyewen.github.io/2014/03/13/2014-03-13-first-blog/</url>
       <content type="html"><![CDATA[<p>都说博客有三境界：一是使用新浪网易等免费的博客，二是自己买空间和域名搭建Wordpress，最后是来到Github Pages了。</p>
 <p>折腾了两天，衣带渐宽，发现自己设计的细胞还是不够。于是在<a href="http://lhzhang.com" target="_blank" rel="external">rusty shutter</a>的基础上，修改了下代码，加入了国内的多说评论模块和Google Analytics统计信息，终于可以投入使用了。已经在Sina SAE搭建的<a href="http://yewen.sinaapp.com" target="_blank" rel="external">博客</a>，就废弃吧。</p>
 <p>众里寻他千百度，毕业后期待人生下个美好的阶段，将点滴记录于此。</p>
