@@ -1,0 +1,831 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="MVVM,iOS," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="MVVM模式已经在业界得到广泛应用, 通过将VC/View中的逻辑剥离到viewModel中，专注数据处理和布局计算; 当一个view的元素相同却需要展示成不同样式时，viewModel便扮演类似HTML的CSS角色，多个viewModel对应一个view，实现了view的“代码复用”； 
+
+
+本文将在MVVM的基础上,  通过多个CellModel 对应一个Cell的方式, 减少了Cell的种类">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MVVM模式在多Cell列表中的实践">
+<meta property="og:url" content="http://jiangyewen.github.io/2017/02/01/2017-02-01-mvvm/index.html">
+<meta property="og:site_name" content="蒋业文">
+<meta property="og:description" content="MVVM模式已经在业界得到广泛应用, 通过将VC/View中的逻辑剥离到viewModel中，专注数据处理和布局计算; 当一个view的元素相同却需要展示成不同样式时，viewModel便扮演类似HTML的CSS角色，多个viewModel对应一个view，实现了view的“代码复用”； 
+
+
+本文将在MVVM的基础上,  通过多个CellModel 对应一个Cell的方式, 减少了Cell的种类">
+<meta property="og:image" content="http://jiangyewen.github.io/media/16097455675627.png">
+<meta property="og:image" content="http://jiangyewen.github.io/media/15441683338246/15441708059319.jpg">
+<meta property="og:image" content="http://jiangyewen.github.io/media/15441683338246/15441711183386.jpg">
+<meta property="og:image" content="http://jiangyewen.github.io/media/15441683338246/network-%20layers-3.png">
+<meta property="og:image" content="http://jiangyewen.github.io/media/15441683338246/Jietu20181207-170232-HD.gif">
+<meta property="og:updated_time" content="2021-01-04T07:48:36.592Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="MVVM模式在多Cell列表中的实践">
+<meta name="twitter:description" content="MVVM模式已经在业界得到广泛应用, 通过将VC/View中的逻辑剥离到viewModel中，专注数据处理和布局计算; 当一个view的元素相同却需要展示成不同样式时，viewModel便扮演类似HTML的CSS角色，多个viewModel对应一个view，实现了view的“代码复用”； 
+
+
+本文将在MVVM的基础上,  通过多个CellModel 对应一个Cell的方式, 减少了Cell的种类">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 6323553073469851000,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://jiangyewen.github.io/2017/02/01/2017-02-01-mvvm/"/>
+
+  <title> MVVM模式在多Cell列表中的实践 | 蒋业文 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?e2237ea93308fd7735b54b143140aad4";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">蒋业文</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                MVVM模式在多Cell列表中的实践
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2017-02-01T00:00:00+08:00" content="2017-02-01">
+              2017-02-01
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2017/02/01/2017-02-01-mvvm/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/02/01/2017-02-01-mvvm/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/02/01/2017-02-01-mvvm/" class="leancloud_visitors" data-flag-title="MVVM模式在多Cell列表中的实践">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">visitors </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>MVVM模式已经在业界得到广泛应用, 通过将VC/View中的逻辑剥离到viewModel中，专注数据处理和布局计算; 当一个view的元素相同却需要展示成不同样式时，viewModel便扮演类似HTML的CSS角色，多个viewModel对应一个view，实现了view的“代码复用”； </p>
+<p><img src="/media/16097455675627.png" alt=""></p>
+<blockquote>
+<p>本文将在MVVM的基础上,  通过多个CellModel 对应一个Cell的方式, 减少了Cell的种类和重复布局代码，实现了代码UI和布局分离; 通过子线程提前计算不同方向的布局数据, 加快了转屏速度，滑动流畅性得到提升。</p>
+</blockquote>
+<a id="more"></a>
+<h2 id="需求和UI设计">需求和UI设计</h2><ul>
+<li><p>列表在竖屏(Portrait)时, 需要进行AB Test:<br>  A.  需要展示单图/大图/三图/视频等多种Cell样式的文章;</p>
+<p>  B. 展示成宫格样式</p>
+</li>
+</ul>
+<p><img src="/media/15441683338246/15441708059319.jpg" alt="-w722"></p>
+<ul>
+<li>横屏(Landscape)时, 展示成一行多个的相册模式;</li>
+</ul>
+<p><img src="/media/15441683338246/15441711183386.jpg" alt="-w688"></p>
+<h2 id="实现分析">实现分析</h2><p>采用常见“一种文章对应一个Cell”的方法, 有以下缺点:</p>
+<ul>
+<li>Cell种类太多: 文章类型有4-5种, 加上AB Test和横竖屏样式, Cell样式达到8种;</li>
+<li>重复代码: 每种文章展示的元素都大同小异, 但是每个Cell都要重复定义并布局一次; </li>
+</ul>
+<h2 id="总体架构图">总体架构图</h2><p>借鉴MVVM分离模式和Web端CSS控制布局的策略, 可以采用以下的方法:</p>
+<ol>
+<li>只定义1~2种cell;</li>
+<li>将Cell中元素的布局, 抽取到类似CSS的CellModel中.</li>
+<li>横竖屏切换时, 只需要选择不同的CellModel;<br>总体的架构图如下:<br><img src="/media/15441683338246/network-%20layers-3.png" alt="network- layers-3"></li>
+</ol>
+<ul>
+<li>ViewModel负责从Loader中请求网络数据, 相应Controller的数据读取与增删改查;</li>
+<li>UICollectionView 会把当前文章信息传递给CellFactory, 查找当前文章对应的cell和cellModel;</li>
+<li>CellFactory查找时, 以文章id和当前屏幕方向组合的key, 尝试从内存里的CellModelCache读取CellModel; 没有则创建新的并写入内存;</li>
+<li>CellModel里计算的是Cell里各个UI元素的布局位置; Cell最终展示的样式, 由CellModel决定; 因此一个Cell可以使用不同的CellModel, 来展示不同的样式;  </li>
+</ul>
+<h2 id="遇到的问题">遇到的问题</h2><p>实现后, 基本满足了需求; 但是如果多加载几屏数据后, 首次进行转屏, UI响应速度比较慢; 原因是等到旋转时再计算当前方向的CellModel, 耗时较多;<br>因为CellModel已经与UI脱离, 存储的只是元素的frame数据, 所以, 在Portrait方向时, 尝试在只线程计算Landscape方向的CellModel, 并缓存到CellModelCache中; 旋转时, 直接读取缓存;</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//计算Portrait方向CellModel并layout</span></span><br><span class="line">MyCellModel *cellModel =</span><br><span class="line">[<span class="keyword">self</span> cellModelForData:listItem context:context rotation:<span class="built_in">UIInterfaceOrientationPortrait</span>];</span><br><span class="line"><span class="keyword">if</span> (cellModel) &#123;</span><br><span class="line">    [cell layoutWithCellModel:cellModel context:context];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//异步计算Landscape CellModel并缓存</span></span><br><span class="line"><span class="built_in">dispatch_async</span>(dispatch_queue_create(<span class="string">"CellModelAsyncCalcute"</span>, DISPATCH_QUEUE_SERIAL), ^&#123;</span><br><span class="line">    @retainify(<span class="keyword">self</span>);</span><br><span class="line">    [<span class="keyword">self</span> cellModelForData:listItem context:context rotation:<span class="built_in">UIInterfaceOrientationLandscapeLeft</span>];</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">- (MyCellModel *)cellModelForData:(ListItem *)listItem</span><br><span class="line">                                             context:(CellLayoutContext *)context</span><br><span class="line">                                            rotation:(<span class="built_in">UIInterfaceOrientation</span>)rotation &#123;</span><br><span class="line"></span><br><span class="line">    Class cellModelClass = [<span class="keyword">self</span> p_cellModelClassForData:listItem context:context];</span><br><span class="line">    <span class="keyword">if</span> (!cellModelClass) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">nil</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//计算当前方向的CellModel</span></span><br><span class="line">    MyCellModel *cellModel = <span class="literal">nil</span>;</span><br><span class="line">    <span class="built_in">NSInteger</span> rotationKey = <span class="built_in">UIInterfaceOrientationIsPortrait</span>(rotation) ? <span class="number">1</span> : <span class="number">0</span>;</span><br><span class="line">    <span class="built_in">NSString</span> *cacheKey = $(<span class="string">@"%@_%@_%@"</span>, listItem<span class="variable">.idStr</span>, <span class="built_in">NSStringFromClass</span>(cellModelClass), @(rotationKey));</span><br><span class="line">    <span class="keyword">if</span> (CHECK_VALID_STRING(cacheKey)) &#123;</span><br><span class="line">        MyCellModel *cellModel =</span><br><span class="line">                AS(MyCellModel, [<span class="keyword">self</span><span class="variable">.cellModelCache</span> objectForKey:cacheKey]);</span><br><span class="line">        <span class="keyword">if</span> (!cellModel || cellModel<span class="variable">.needRecaculate</span>) &#123;</span><br><span class="line">            cellModel = [[cellModelClass alloc] init];</span><br><span class="line">            [cellModel calculateWithData:listItem context:context];</span><br><span class="line">            [<span class="keyword">self</span><span class="variable">.cellModelCache</span> setObject:cellModel forKey:cacheKey];</span><br><span class="line">            cellModel<span class="variable">.needRecaculate</span> = <span class="literal">NO</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> cellModel;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="实际效果">实际效果</h2><p><img src="/media/15441683338246/Jietu20181207-170232-HD.gif" alt="Jietu20181207-170232-HD"></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div>本文如对你有帮助,请鼓励下！</div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/media/WechatPay.jpeg" alt="蒋业文 WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/MVVM/" rel="tag">#MVVM</a>
+          
+            <a href="/tags/iOS/" rel="tag">#iOS</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/09/10/2016-09-10-libextojc/" rel="next" title="libextobjc常用macro原理和使用">
+                <i class="fa fa-chevron-left"></i> libextobjc常用macro原理和使用
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2017/02/01/2017-02-01-mvvm/"
+           data-title="MVVM模式在多Cell列表中的实践" data-url="http://jiangyewen.github.io/2017/02/01/2017-02-01-mvvm/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="http://ww2.sinaimg.cn/mw690/8040b9dbjw8ehrax5unptj20dc0dc0uj.jpg"
+               alt="蒋业文" />
+          <p class="site-author-name" itemprop="name">蒋业文</p>
+          <p class="site-description motion-element" itemprop="description"></p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">32</span>
+                <span class="site-state-item-name">tags</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/jiangyewen" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://weibo.com/dawnbird" target="_blank" title="Weibo">
+                  
+                    <i class="fa fa-fw fa-weibo"></i>
+                  
+                  Weibo
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-block">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              Friends
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://wuage.me/" title="五阿哥" target="_blank">五阿哥</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#需求和UI设计"><span class="nav-number">1.</span> <span class="nav-text">需求和UI设计</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#实现分析"><span class="nav-number">2.</span> <span class="nav-text">实现分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总体架构图"><span class="nav-number">3.</span> <span class="nav-text">总体架构图</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#遇到的问题"><span class="nav-number">4.</span> <span class="nav-text">遇到的问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#实际效果"><span class="nav-number">5.</span> <span class="nav-text">实际效果</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2014 - 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">蒋业文</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="https://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.0.1"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"jiangyewen"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    <script src="/vendors/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("whWNfH8oKYC9fSvbWqRGe2cc-gzGzoHsz", "l9I2KP2JbF2Hqf0NtzYicT9B");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+</body>
+</html>
